@@ -1,6 +1,10 @@
-# jwt
+# JWT
 
-TODO: Write a description here
+An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519) in
+Crystal programming language.
+
+
+_The project is under development_
 
 ## Installation
 
@@ -16,25 +20,27 @@ dependencies:
 
 ## Usage
 
-
 ```crystal
 require "jwt"
+
+# Create a token
+payload = {"k1" => "v1", "k2" => "v2"}
+token = JWT.encode(payload, "SecretKey", "HS256")
+# => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrMSI6InYxIiwiazIiOiJ2MiJ9.spzfy63YQSKdoM3av9HHvLtWzFjPd1hbch2g3T1-nu4"
+
+# Decode a token
+payload, header = JWT.decode(token, "SecretKey", "SH256")
+# => [
+        {"k1" => "v1", "k2" => "v2"},
+        {"typ" => "JWT","alg" => "HS256"}
+    ]
 ```
 
+## Tests
 
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
-
-## Contributing
-
-1. Fork it ( https://github.com/greyblake/jwt/fork )
-2. Create your feature branch (git checkout -b my-new-feature)
-3. Commit your changes (git commit -am 'Add some feature')
-4. Push to the branch (git push origin my-new-feature)
-5. Create a new Pull Request
+```
+crystal spec
+```
 
 ## Contributors
 
