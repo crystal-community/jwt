@@ -8,8 +8,9 @@ module JWT
   extend self
 
   class Error < ::Exception; end;
-  class VerificationError < Error; end;
   class DecodeError < Error; end;
+  class VerificationError < DecodeError; end;
+  class ExpiredSignatureError < DecodeError; end;
 
   def encode(payload, key : String, algorithm : String) : String
     segments = [] of String
@@ -19,7 +20,6 @@ module JWT
     segments.join(".")
   end
 
-  # TODO: verify expiration time
   def decode(token : String, key : String, algorithm : String)
     segments = token.split(".")
 
@@ -39,6 +39,10 @@ module JWT
 
     payload_json = base64_decode(encoded_payload)
     payload = JSON.parse(payload_json).as_h
+
+    if payload["exp"]? && payload["exp"].to_s.to_i < Time.now.epoch
+      raise ExpiredSignatureError.new("Signature is expired")
+    end
 
     [payload, header]
   rescue Base64::Error

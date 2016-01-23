@@ -17,6 +17,29 @@ describe JWT do
       header.should eq({"typ" => "JWT","alg" => "HS256"})
       payload.should eq({"k1" => "v1","k2" => "v2"})
     end
+
+    context "exp element is present" do
+      context "exp is in the future" do
+         it "token is accepted" do
+           exp = Time.now.epoch + 10
+           payload = { "exp" => exp }
+           token = JWT.encode(payload, "key", "HS256")
+           payload, header = JWT.decode(token, "key", "HS256")
+           payload.should eq({ "exp" => exp })
+         end
+      end
+
+      context "exp is in the past" do
+        it "raises VerificationError" do
+          exp = Time.now.epoch - 1
+          payload = { "exp" => exp }
+          token = JWT.encode(payload, "key", "HS256")
+          expect_raises(JWT::ExpiredSignatureError, "Signature is expired") do
+            JWT.decode(token, "key", "HS256")
+          end
+        end
+      end
+    end
   end
 
   describe "#encode_header" do
