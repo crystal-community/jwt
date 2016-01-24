@@ -22,6 +22,7 @@ module JWT
   # Is raised when signature is expired (see `exp` reserved claim name)
   class ExpiredSignatureError < DecodeError; end;
 
+  # Is raised when time hasn't reached nbf claim in the token
   class ImmatureSignatureError < DecodeError; end;
 
   def encode(payload, key : String, algorithm : String) : String
