@@ -8,6 +8,14 @@ describe JWT do
       token = JWT.encode(payload, key, "HS256")
       token.should eq "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrMSI6InYxIiwiazIiOiJ2MiJ9.spzfy63YQSKdoM3av9HHvLtWzFjPd1hbch2g3T1-nu4"
     end
+
+    context "when unknown algorithm is passed" do
+      it "raises UnsupportedAlogrithmError" do
+        expect_raises(JWT::UnsupportedAlogrithmError, "Unsupported algorithm: LOL") do
+          JWT.encode({"a" => "b"}, "key", "LOL")
+        end
+      end
+    end
   end
 
   describe "#decode" do

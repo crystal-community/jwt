@@ -8,6 +8,9 @@ module JWT
   extend self
 
   class Error < ::Exception; end;
+
+  class UnsupportedAlogrithmError < Error; end;
+
   class DecodeError < Error; end;
   class VerificationError < DecodeError; end;
   class ExpiredSignatureError < DecodeError; end;
@@ -34,10 +37,10 @@ module JWT
       raise VerificationError.new("Signature verification failed")
     end
 
-    header_json = base64_decode(encoded_header)
+    header_json = Base64.decode_string(encoded_header)
     header = JSON.parse(header_json).as_h
 
-    payload_json = base64_decode(encoded_payload)
+    payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json).as_h
 
     if payload["exp"]? && payload["exp"].to_s.to_i < Time.now.epoch
@@ -47,6 +50,8 @@ module JWT
     [payload, header]
   rescue Base64::Error
     raise DecodeError.new("Invalid Base64")
+  rescue JSON::ParseException
+    raise DecodeError.new("Invalid JSON")
   end
 
   def encode_header(algorithm : String) : String
@@ -74,11 +79,7 @@ module JWT
       OpenSSL::HMAC.digest(:sha384, key, data)
     when "HS512"
       OpenSSL::HMAC.digest(:sha512, key, data)
-    else raise(Error.new("Unsupported algorithm: #{algorithm}"))
+    else raise(UnsupportedAlogrithmError.new("Unsupported algorithm: #{algorithm}"))
     end
-  end
-
-  def base64_decode(str : String)
-    Base64.decode_string(str)
   end
 end
