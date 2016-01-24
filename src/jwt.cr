@@ -22,6 +22,8 @@ module JWT
   # Is raised when signature is expired (see `exp` reserved claim name)
   class ExpiredSignatureError < DecodeError; end;
 
+  class ImmatureSignatureError < DecodeError; end;
+
   def encode(payload, key : String, algorithm : String) : String
     segments = [] of String
     segments << encode_header(algorithm)
@@ -50,8 +52,14 @@ module JWT
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json).as_h
 
+    # Handle exp
     if payload["exp"]? && payload["exp"].to_s.to_i < Time.now.epoch
       raise ExpiredSignatureError.new("Signature is expired")
+    end
+
+    # Handle nbf
+    if payload["nbf"]? && payload["nbf"].to_s.to_i > Time.now.epoch
+      raise ImmatureSignatureError.new("Signature nbf has not been reached")
     end
 
     [payload, header]
