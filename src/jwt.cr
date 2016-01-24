@@ -25,8 +25,11 @@ module JWT
   # Is raised when time hasn't reached nbf claim in the token.
   class ImmatureSignatureError < DecodeError; end;
 
-  # Is raised when aud does not match.
+  # Is raised when 'aud' does not match.
   class InvalidAudienceError < DecodeError; end;
+
+  # Is raised when 'iss' does not match.
+  class InvalidIssuerError < DecodeError; end;
 
   def encode(payload, key : String, algorithm : String) : String
     segments = [] of String
@@ -59,6 +62,7 @@ module JWT
     validate_exp!(payload["exp"])      if payload["exp"]?
     validate_nbf!(payload["nbf"])      if payload["nbf"]?
     validate_aud!(payload, opts[:aud]) if opts[:aud]?
+    validate_iss!(payload, opts[:iss]) if opts[:iss]?
 
     [payload, header]
   rescue Base64::Error
@@ -124,6 +128,14 @@ module JWT
       end
     else
       raise InvalidAudienceError.new("aud claim must be a string or array of strings")
+    end
+  end
+
+  private def validate_iss!(payload, iss)
+    if !payload["iss"]?
+      raise InvalidIssuerError.new("Invalid issuer. Expected #{iss.inspect}, received nothing")
+    elsif payload["iss"] != iss
+      raise InvalidIssuerError.new("Invalid issuer. Expected #{iss.inspect}, received #{payload["iss"].inspect}")
     end
   end
 end

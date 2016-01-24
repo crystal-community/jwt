@@ -11,6 +11,7 @@ An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)
     * [Not before time (nbf)](#not-before-time-nbf)
     * [Issued At (iat)](#issued-at-iat)
     * [Audience (aud)](#audience-aud)
+    * [Issuer (iss)](#issuer-iss)
   * [Exceptions](#exceptions)
   * [Test](#test)
   * [Contributors](#contributors)
@@ -48,7 +49,7 @@ payload, header = JWT.decode(token, "$secretKey", "HS256")
 JSON Web Token defines some reserved claim names and how they should be used. Currently the library supports the following:
 * [x] 'exp' (Expiration Time) Claim
 * [x] 'nbf' (Not Before Time) Claim
-* [ ] 'iss' (Issuer) Claim
+* [x] 'iss' (Issuer) Claim
 * [x] 'aud' (Audience) Claim
 * [ ] 'jti' (JWT ID) Claim
 * [x] 'iat' (Issued At) Claim
@@ -116,6 +117,22 @@ payload, header = JWT.decode(token, "key", "HS256", {aud: "sergey"})
 
 # aud does not match, raises JWT::InvalidAudienceError
 payload, header = JWT.decode(token, "key", "HS256", {aud: "max"})
+```
+
+### Issuer (iss)
+From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.1):
+> The iss (issuer) claim identifies the principal that issued the JWT. The processing of this claim is generally application specific. The iss value is a case-sensitive string containing a StringOrURI value. Use of this claim is OPTIONAL.
+
+Example:
+```crystal
+payload = { "foo" => "bar", "iss" => "me"}
+token = JWT.encode(payload, "SecretKey", "HS256")
+
+# OK, because iss matches
+payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "me"})
+
+# iss does not match, raises JWT::InvalidIssuerError
+payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "you"})
 ```
 
 ## Exceptions
