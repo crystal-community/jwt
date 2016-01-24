@@ -142,6 +142,7 @@ payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "you"})
     * JWT::ExpiredSignatureError
     * JWT::ImmatureSignatureError
     * JWT::InvalidAudienceError
+    * JWT::InvalidIssuerError
   * UnsupportedAlogrithmError
 
 ## Test
