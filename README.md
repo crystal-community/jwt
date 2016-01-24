@@ -9,6 +9,7 @@ An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)
   * [Supported reserved claim names](#supported-reserved-claim-names)
     * [Expiration time (exp)](#expiration-time-exp)
     * [Not before time (nbf)](#not-before-time-nbf)
+    * [Issued At (iat)](#issued-at-iat)
   * [Exceptions](#exceptions)
   * [Test](#test)
   * [Contributors](#contributors)
@@ -49,7 +50,7 @@ JSON Web Token defines some reserved claim names and how they should be used. Cu
 * [ ] 'iss' (Issuer) Claim
 * [ ] 'aud' (Audience) Claim
 * [ ] 'jti' (JWT ID) Claim
-* [ ] 'iat' (Issued At) Claim
+* [x] 'iat' (Issued At) Claim
 * [ ] 'sub' (Subject) Claim
 
 ### Expiration Time (exp)
@@ -89,6 +90,17 @@ token = JWT.encode(payload, "SecretKey", "HS256")
 # Currently it's not acceptable, raises JWT::ImmatureSignatureError
 JWT.decode(token, "SecretKey", "HS256")
 ```
+
+### Issued At (iat)
+From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.6):
+> The "iat" (issued at) claim identifies the time at which the JWT was issued. This claim can be used to determine the age of the JWT. Its value MUST be a number containing a NumericDate value. Use of this claim is OPTIONAL.
+
+Example:
+```crystal
+payload = { "foo" => "bar", "iat" => Time.now.epoch }
+token = JWT.encode(payload, "SecretKey", "HS256")
+```
+
 
 
 ## Exceptions
