@@ -22,8 +22,11 @@ module JWT
   # Is raised when signature is expired (see `exp` reserved claim name)
   class ExpiredSignatureError < DecodeError; end;
 
-  # Is raised when time hasn't reached nbf claim in the token
+  # Is raised when time hasn't reached nbf claim in the token.
   class ImmatureSignatureError < DecodeError; end;
+
+  # Is raised when aud does not match.
+  class InvalidAudienceError < DecodeError; end;
 
   def encode(payload, key : String, algorithm : String) : String
     segments = [] of String
@@ -33,7 +36,7 @@ module JWT
     segments.join(".")
   end
 
-  def decode(token : String, key : String, algorithm : String)
+  def decode(token : String, key : String, algorithm : String, opts = {} of Symbol => String)
     segments = token.split(".")
 
     unless segments.size == 3
@@ -53,15 +56,9 @@ module JWT
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json).as_h
 
-    # Handle exp
-    if payload["exp"]? && payload["exp"].to_s.to_i < Time.now.epoch
-      raise ExpiredSignatureError.new("Signature is expired")
-    end
-
-    # Handle nbf
-    if payload["nbf"]? && payload["nbf"].to_s.to_i > Time.now.epoch
-      raise ImmatureSignatureError.new("Signature nbf has not been reached")
-    end
+    validate_exp!(payload["exp"])      if payload["exp"]?
+    validate_nbf!(payload["nbf"])      if payload["nbf"]?
+    validate_aud!(payload, opts[:aud]) if opts[:aud]?
 
     [payload, header]
   rescue Base64::Error
@@ -96,6 +93,37 @@ module JWT
     when "HS512"
       OpenSSL::HMAC.digest(:sha512, key, data)
     else raise(UnsupportedAlogrithmError.new("Unsupported algorithm: #{algorithm}"))
+    end
+  end
+
+  private def validate_exp!(exp)
+    if exp.to_s.to_i < Time.now.epoch
+      raise ExpiredSignatureError.new("Signature is expired")
+    end
+  end
+
+  private def validate_nbf!(nbf)
+    if nbf.to_s.to_i > Time.now.epoch
+      raise ImmatureSignatureError.new("Signature nbf has not been reached")
+    end
+  end
+
+  private def validate_aud!(payload, aud)
+    if !payload["aud"]?
+      raise InvalidAudienceError.new("Invalid audience. Expected #{aud}, got nothing")
+    elsif payload["aud"].is_a?(String)
+      if aud != payload["aud"]
+        raise InvalidAudienceError.new("Invalid audience. Expected #{aud}, got #{payload["aud"]}")
+      end
+    elsif payload["aud"].is_a?(Array)
+      # to prevent compile-time error
+      auds = payload["aud"] as Array
+      if !auds.includes?(aud)
+        msg = "Invalid audience. Expected #{aud}, got #{payload["aud"].inspect}"
+        raise InvalidAudienceError.new(msg)
+      end
+    else
+      raise InvalidAudienceError.new("aud claim must be a string or array of strings")
     end
   end
 end

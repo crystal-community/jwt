@@ -10,6 +10,7 @@ An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)
     * [Expiration time (exp)](#expiration-time-exp)
     * [Not before time (nbf)](#not-before-time-nbf)
     * [Issued At (iat)](#issued-at-iat)
+    * [Audience (aud)](#audience-aud)
   * [Exceptions](#exceptions)
   * [Test](#test)
   * [Contributors](#contributors)
@@ -48,7 +49,7 @@ JSON Web Token defines some reserved claim names and how they should be used. Cu
 * [x] 'exp' (Expiration Time) Claim
 * [x] 'nbf' (Not Before Time) Claim
 * [ ] 'iss' (Issuer) Claim
-* [ ] 'aud' (Audience) Claim
+* [x] 'aud' (Audience) Claim
 * [ ] 'jti' (JWT ID) Claim
 * [x] 'iat' (Issued At) Claim
 * [ ] 'sub' (Subject) Claim
@@ -101,13 +102,29 @@ payload = { "foo" => "bar", "iat" => Time.now.epoch }
 token = JWT.encode(payload, "SecretKey", "HS256")
 ```
 
+### Audience (aud)
+From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.3):
+> The aud (audience) claim identifies the recipients that the JWT is intended for. Each principal intended to process the JWT MUST identify itself with a value in the audience claim. If the principal processing the claim does not identify itself with a value in the aud claim when this claim is present, then the JWT MUST be rejected. In the general case, the aud value is an array of case-sensitive strings, each containing a StringOrURI value. In the special case when the JWT has one audience, the aud value MAY be a single case-sensitive string containing a StringOrURI value. The interpretation of audience values is generally application specific. Use of this claim is OPTIONAL.
 
+Example:
+```crystal
+payload = {"foo" => "bar", "aud" => ["sergey", "julia"]}
+token = JWT.encode(payload, "key", "HS256")
+
+# OK, aud matches
+payload, header = JWT.decode(token, "key", "HS256", {aud: "sergey"})
+
+# aud does not match, raises JWT::InvalidAudienceError
+payload, header = JWT.decode(token, "key", "HS256", {aud: "max"})
+```
 
 ## Exceptions
 * JWT::Error
   * JWT::DecodeError
     * JWT::VerificationError
     * JWT::ExpiredSignatureError
+    * JWT::ImmatureSignatureError
+    * JWT::InvalidAudienceError
   * UnsupportedAlogrithmError
 
 ## Test
