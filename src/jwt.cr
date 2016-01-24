@@ -7,12 +7,19 @@ require "./jwt/*"
 module JWT
   extend self
 
+  # Basic JWT exception.
   class Error < ::Exception; end;
 
+  # Is raised on attempt to use unsupported algorithm.
   class UnsupportedAlogrithmError < Error; end;
 
+  # raised when failed to decode token
   class DecodeError < Error; end;
+
+  # Is raised when failed to verify signature.
   class VerificationError < DecodeError; end;
+
+  # Is raised when signature is expired (see `exp` reserved claim name)
   class ExpiredSignatureError < DecodeError; end;
 
   def encode(payload, key : String, algorithm : String) : String
