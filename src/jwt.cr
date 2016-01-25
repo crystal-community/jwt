@@ -39,6 +39,7 @@ module JWT
     validate_nbf!(payload["nbf"])      if payload["nbf"]?
     validate_aud!(payload, opts[:aud]) if opts[:aud]?
     validate_iss!(payload, opts[:iss]) if opts[:iss]?
+    validate_sub!(payload, opts[:sub]) if opts[:sub]?
 
     [payload, header]
   rescue Base64::Error
@@ -112,6 +113,16 @@ module JWT
       raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received nothing")
     elsif payload["iss"] != iss
       raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received #{payload["iss"].inspect}")
+    end
+  end
+
+  private def validate_sub!(payload, sub)
+    if payload["sub"]?
+      if payload["sub"] != sub
+        raise InvalidSubjectError.new("Invalid subject (sub). Expected #{sub.inspect}, received #{payload["sub"].inspect}")
+      end
+    else
+      raise InvalidSubjectError.new("Invalid subject (sub). Expected #{sub.inspect}, received nothing")
     end
   end
 end

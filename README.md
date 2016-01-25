@@ -12,6 +12,7 @@ An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)
     * [Issued At (iat)](#issued-at-iat)
     * [Audience (aud)](#audience-aud)
     * [Issuer (iss)](#issuer-iss)
+    * [Subject (sub)](#subject-sub)
   * [Exceptions](#exceptions)
   * [Test](#test)
   * [Contributors](#contributors)
@@ -53,7 +54,7 @@ JSON Web Token defines some reserved claim names and how they should be used. Cu
 * [x] 'aud' (Audience) Claim
 * [ ] 'jti' (JWT ID) Claim
 * [x] 'iat' (Issued At) Claim
-* [ ] 'sub' (Subject) Claim
+* [x] 'sub' (Subject) Claim
 
 ### Expiration Time (exp)
 From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.4):
@@ -135,6 +136,19 @@ payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "me"})
 payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "you"})
 ```
 
+### Subject (sub)
+From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.2):
+> The sub (subject) claim identifies the principal that is the subject of the JWT. The Claims in a JWT are normally statements about the subject. The subject value MUST either be scoped to be locally unique in the context of the issuer or be globally unique. The processing of this claim is generally application specific. The sub value is a case-sensitive string containing a StringOrURI value. Use of this claim is OPTIONAL.
+
+Example:
+```crystal
+payload = { "nomo" => "Sergeo", "sub" => "Esperanto" }
+token = JWT.encode(payload, "key", "HS256")
+
+# Raises JWT::InvalidSubjectError, because "sub" claim does not match
+JWT.decode(token, "key", "HS256", {sub: "Junularo"})
+```
+
 ## Exceptions
 * JWT::Error
   * JWT::DecodeError
@@ -143,6 +157,7 @@ payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "you"})
     * JWT::ImmatureSignatureError
     * JWT::InvalidAudienceError
     * JWT::InvalidIssuerError
+    * JWT::InvalidSubjectError
   * UnsupportedAlogrithmError
 
 ## Test
