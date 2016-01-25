@@ -5,7 +5,7 @@ describe "iss claim" do
     context ":iss option is passed to .decode" do
       it "raises InvalidIssuerError" do
         token = JWT.encode({"foo" => "bar"}, "key", "HS256")
-        expect_raises(JWT::InvalidIssuerError, "Invalid issuer. Expected \"TEJO\", received nothing") do
+        expect_raises(JWT::InvalidIssuerError, "Invalid issuer (iss). Expected \"TEJO\", received nothing") do
           JWT.decode(token, "key", "HS256", {iss: "TEJO"})
         end
       end
@@ -33,7 +33,7 @@ describe "iss claim" do
       context "iss does not match" do
         it "raises InvalidIssuerError" do
           token = JWT.encode({"iss" => "TEJO"}, "key", "HS256")
-          expect_raises(JWT::InvalidIssuerError, "Invalid issuer. Expected \"UEA\", received \"TEJO\"") do
+          expect_raises(JWT::InvalidIssuerError, "Invalid issuer (iss). Expected \"UEA\", received \"TEJO\"") do
             JWT.decode(token, "key", "HS256", {iss: "UEA"})
           end
         end
