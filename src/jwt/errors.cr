@@ -25,4 +25,7 @@ module JWT
 
   # Is raised when 'sub' claim does not match.
   class InvalidSubjectError < DecodeError; end
+
+  # Is raised when 'jti' claim is invalid.
+  class InvalidJtiError < DecodeError; end
 end

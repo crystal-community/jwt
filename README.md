@@ -13,6 +13,7 @@ An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)
     * [Audience (aud)](#audience-aud)
     * [Issuer (iss)](#issuer-iss)
     * [Subject (sub)](#subject-sub)
+    * [JWT ID (jti)](#jwt-id-jti)
   * [Exceptions](#exceptions)
   * [Test](#test)
   * [Contributors](#contributors)
@@ -44,17 +45,17 @@ payload, header = JWT.decode(token, "$secretKey", "HS256")
 ## Supported algorithms
 * [x] none
 * [x] HMAC (HS256, HS384, HS512)
-* [ ] RSA - will be implemented as soon, as Crystal has RSA support in the standard library.
+* [ ] RSA - in progress
 
 ## Supported reserved claim names
-JSON Web Token defines some reserved claim names and how they should be used. Currently the library supports the following:
-* [x] 'exp' (Expiration Time) Claim
-* [x] 'nbf' (Not Before Time) Claim
-* [x] 'iss' (Issuer) Claim
-* [x] 'aud' (Audience) Claim
-* [ ] 'jti' (JWT ID) Claim
-* [x] 'iat' (Issued At) Claim
-* [x] 'sub' (Subject) Claim
+JSON Web Token defines some reserved claim names and how they should be used.
+* ['exp' (Expiration Time) Claim](#expiration-time-exp)
+* ['nbf' (Not Before Time) Claim](#not-before-time-nbf)
+* ['iss' (Issuer) Claim](#issuer-iss)
+* ['aud' (Audience) Claim](#audience-aud)
+* ['jti' (JWT ID) Claim](#jwt-id-jti)
+* ['iat' (Issued At) Claim](#issued-at-iat)
+* ['sub' (Subject) Claim](#subject-sub)
 
 ### Expiration Time (exp)
 From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.4):
@@ -148,6 +149,20 @@ token = JWT.encode(payload, "key", "HS256")
 # Raises JWT::InvalidSubjectError, because "sub" claim does not match
 JWT.decode(token, "key", "HS256", {sub: "Junularo"})
 ```
+
+### JWT ID (jti)
+From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.7):
+> The jti (JWT ID) claim provides a unique identifier for the JWT. The identifier value MUST be assigned in a manner that ensures that there is a negligible probability that the same value will be accidentally assigned to a different data object; if the application uses multiple issuers, collisions MUST be prevented among values produced by different issuers as well. The jti claim can be used to prevent the JWT from being replayed. The jti value is a case-sensitive string. Use of this claim is OPTIONAL.
+
+Example:
+```crystal
+require "secure_random"
+
+jti = SecureRandom.urlsafe_base64
+payload = { "foo" => "bar", "jti" => jti }
+token = JWT.encode(payload, "SecretKey", "HS256")
+```
+
 
 ## Exceptions
 * JWT::Error
