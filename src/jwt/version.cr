@@ -1,3 +1,3 @@
-module Jwt
-  VERSION = "0.1.1"
+module JWT
+  VERSION = "0.2.0"
 end
