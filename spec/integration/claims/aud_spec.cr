@@ -14,7 +14,7 @@ describe "aud claim" do
       it "raises InvalidAudienceError" do
         token = JWT.encode({"foo" => "bar"}, "key", "HS256")
         expect_raises(JWT::InvalidAudienceError, "Invalid audience (aud). Expected \"sergey\", received nothing") do
-          JWT.decode(token, "key", "HS256", {:aud => "sergey"})
+          JWT.decode(token, "key", "HS256", aud: "sergey")
         end
       end
     end
@@ -32,7 +32,7 @@ describe "aud claim" do
     context "aud matches" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => "sergey"}, "key", "HS256")
-        payload, header = JWT.decode(token, "key", "HS256", {:aud => "sergey"})
+        payload, header = JWT.decode(token, "key", "HS256", aud: "sergey")
         payload.should eq({ "foo" => "bar", "aud" => "sergey" })
       end
     end
@@ -41,7 +41,7 @@ describe "aud claim" do
       it "raises InvalidAudienceError" do
         token = JWT.encode({"foo" => "bar", "aud" => "sergey"}, "key", "HS256")
         expect_raises(JWT::InvalidAudienceError, "Invalid audience (aud). Expected \"julia\", received \"sergey\"") do
-          JWT.decode(token, "key", "HS256", {aud: "julia"})
+          JWT.decode(token, "key", "HS256", aud: "julia")
         end
       end
     end
@@ -60,10 +60,10 @@ describe "aud claim" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => ["sergey", "julia"]}, "key", "HS256")
 
-        payload, header = JWT.decode(token, "key", "HS256", {aud: "julia"})
+        payload, header = JWT.decode(token, "key", "HS256", aud: "julia")
         payload.should eq({ "foo" => "bar", "aud" => ["sergey", "julia"] })
 
-        payload, header = JWT.decode(token, "key", "HS256", {aud: "sergey"})
+        payload, header = JWT.decode(token, "key", "HS256", aud: "sergey")
         payload.should eq({ "foo" => "bar", "aud" => ["sergey", "julia"] })
       end
     end
@@ -73,7 +73,7 @@ describe "aud claim" do
         token = JWT.encode({"foo" => "bar", "aud" => ["sergey", "julia"]}, "key", "HS256")
 
         expect_raises(JWT::InvalidAudienceError, "Invalid audience (aud). Expected \"max\", received [\"sergey\", \"julia\"]") do
-          JWT.decode(token, "key", "HS256", {aud: "max"})
+          JWT.decode(token, "key", "HS256", aud: "max")
         end
       end
     end
@@ -83,7 +83,7 @@ describe "aud claim" do
     it "raises exception" do
       token = JWT.encode({"foo" => "bar", "aud" => 123}, "key", "HS256")
       expect_raises(JWT::InvalidAudienceError, "aud claim must be a string or array of strings") do
-        JWT.decode(token, "key", "HS256", {aud: "max"})
+        JWT.decode(token, "key", "HS256", aud: "max")
       end
     end
   end

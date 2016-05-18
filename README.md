@@ -115,10 +115,10 @@ payload = {"foo" => "bar", "aud" => ["sergey", "julia"]}
 token = JWT.encode(payload, "key", "HS256")
 
 # OK, aud matches
-payload, header = JWT.decode(token, "key", "HS256", {aud: "sergey"})
+payload, header = JWT.decode(token, "key", "HS256", aud: "sergey")
 
 # aud does not match, raises JWT::InvalidAudienceError
-payload, header = JWT.decode(token, "key", "HS256", {aud: "max"})
+payload, header = JWT.decode(token, "key", "HS256", aud: "max")
 ```
 
 ### Issuer (iss)
@@ -131,10 +131,10 @@ payload = { "foo" => "bar", "iss" => "me"}
 token = JWT.encode(payload, "SecretKey", "HS256")
 
 # OK, because iss matches
-payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "me"})
+payload, header = JWT.decode(token, "SecretKey", "HS256", iss: "me")
 
 # iss does not match, raises JWT::InvalidIssuerError
-payload, header = JWT.decode(token, "SecretKey", "HS256", {iss: "you"})
+payload, header = JWT.decode(token, "SecretKey", "HS256", iss: "you")
 ```
 
 ### Subject (sub)
@@ -147,7 +147,7 @@ payload = { "nomo" => "Sergeo", "sub" => "Esperanto" }
 token = JWT.encode(payload, "key", "HS256")
 
 # Raises JWT::InvalidSubjectError, because "sub" claim does not match
-JWT.decode(token, "key", "HS256", {sub: "Junularo"})
+JWT.decode(token, "key", "HS256", sub: "Junularo")
 ```
 
 ### JWT ID (jti)

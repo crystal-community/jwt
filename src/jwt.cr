@@ -15,7 +15,7 @@ module JWT
     segments.join(".")
   end
 
-  def decode(token : String, key : String, algorithm : String, opts = {} of Symbol => String)
+  def decode(token : String, key : String, algorithm : String, **opts)
     segments = token.split(".")
 
     unless segments.size == 3
@@ -35,11 +35,11 @@ module JWT
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json).as_h
 
-    validate_exp!(payload["exp"])      if payload["exp"]?
-    validate_nbf!(payload["nbf"])      if payload["nbf"]?
-    validate_aud!(payload, opts[:aud]) if opts[:aud]?
-    validate_iss!(payload, opts[:iss]) if opts[:iss]?
-    validate_sub!(payload, opts[:sub]) if opts[:sub]?
+    validate_exp!(payload["exp"])       if payload["exp"]?
+    validate_nbf!(payload["nbf"])       if payload["nbf"]?
+    validate_aud!(payload, opts[:aud]?) if opts[:aud]?
+    validate_iss!(payload, opts[:iss]?) if opts[:iss]?
+    validate_sub!(payload, opts[:sub]?) if opts[:sub]?
 
     [payload, header]
   rescue Base64::Error

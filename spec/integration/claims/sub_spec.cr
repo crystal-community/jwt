@@ -7,7 +7,7 @@ describe "sub claim" do
         payload = { "foo" => "bar" }
         token = JWT.encode(payload, "key", "HS256")
         expect_raises(JWT::InvalidSubjectError, "Invalid subject (sub). Expected \"TEJO\", received nothing") do
-          JWT.decode(token, "key", "HS256", {sub: "TEJO"})
+          JWT.decode(token, "key", "HS256", sub: "TEJO")
         end
       end
     end
@@ -29,7 +29,7 @@ describe "sub claim" do
           payload = { "sub" => "Esperanto" }
           token = JWT.encode(payload, "key", "HS256")
           expect_raises(JWT::InvalidSubjectError, "Invalid subject (sub). Expected \"Junularo\", received \"Esperanto\"") do
-            JWT.decode(token, "key", "HS256", {sub: "Junularo"})
+            JWT.decode(token, "key", "HS256", sub: "Junularo")
           end
         end
       end
@@ -38,7 +38,7 @@ describe "sub claim" do
         it "accepts the token" do
           payload = { "sub" => "Esperanto" }
           token = JWT.encode(payload, "key", "HS256")
-          payload, header = JWT.decode(token, "key", "HS256", {sub: "Esperanto"})
+          payload, header = JWT.decode(token, "key", "HS256", sub: "Esperanto")
           payload.should eq({ "sub" => "Esperanto" })
         end
       end
