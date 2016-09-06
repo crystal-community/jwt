@@ -98,7 +98,7 @@ module JWT
       end
     elsif payload["aud"].is_a?(Array)
       # to prevent compile-time error
-      auds = payload["aud"] as Array
+      auds = payload["aud"].as(Array)
       if !auds.includes?(aud)
         msg = "Invalid audience (aud). Expected #{aud.inspect}, received #{payload["aud"].inspect}"
         raise InvalidAudienceError.new(msg)
