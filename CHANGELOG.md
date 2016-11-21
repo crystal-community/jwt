@@ -1,3 +1,7 @@
+#### v0.2.1 2016-11-21
+
+* Compatibility with Crystal 0.19 (akwiatkowski)
+
 #### v0.2.0 2016-05-18
 
 * Migrate to Crystal 0.17.0
