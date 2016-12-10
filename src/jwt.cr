@@ -51,17 +51,17 @@ module JWT
   def encode_header(algorithm : String) : String
     header = { "typ" => "JWT", "alg" => algorithm }
     json = header.to_json
-    Base64.urlsafe_encode(json)
+    base64_encode(json)
   end
 
   def encode_payload(payload) : String
     json = payload.to_json
-    Base64.urlsafe_encode(json)
+    base64_encode(json)
   end
 
   def encoded_signature(algorithm : String, key : String, data : String)
     signature = sign(algorithm, key, data)
-    Base64.urlsafe_encode(signature)
+    base64_encode(signature)
   end
 
   def sign(algorithm : String, key : String, data : String)
@@ -75,6 +75,10 @@ module JWT
       OpenSSL::HMAC.digest(:sha512, key, data)
     else raise(UnsupportedAlogrithmError.new("Unsupported algorithm: #{algorithm}"))
     end
+  end
+
+  private def base64_encode(data)
+    Base64.urlsafe_encode(data).gsub /\=+/, ""
   end
 
   private def validate_exp!(exp)
