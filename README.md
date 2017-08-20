@@ -1,4 +1,4 @@
-# Crystal JWT [![Build Status](https://travis-ci.org/greyblake/crystal-jwt.svg?branch=master)](https://travis-ci.org/greyblake/crystal-jwt)
+# Crystal JWT [![Build Status](https://travis-ci.org/crystal-community/crystal-jwt.svg?branch=master)](https://travis-ci.org/crystal-community/jwt)
 
 An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519) in Crystal programming language.
 
@@ -25,7 +25,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   jwt:
-    github: greyblake/crystal-jwt
+    github: crystal-community/crystal-jwt
 ```
 
 ## Usage
