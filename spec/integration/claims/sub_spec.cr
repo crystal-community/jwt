@@ -4,7 +4,7 @@ describe "sub claim" do
   context "token does not contain sub" do
     context ":sub option is passed to .decode" do
       it "raises InvalidSubjectError" do
-        payload = { "foo" => "bar" }
+        payload = {"foo" => "bar"}
         token = JWT.encode(payload, "key", "HS256")
         expect_raises(JWT::InvalidSubjectError, "Invalid subject (sub). Expected \"TEJO\", received nothing") do
           JWT.decode(token, "key", "HS256", sub: "TEJO")
@@ -14,10 +14,10 @@ describe "sub claim" do
 
     context ":sub option is not passed to .decode" do
       it "accepts token" do
-        payload = { "foo" => "bar" }
+        payload = {"foo" => "bar"}
         token = JWT.encode(payload, "key", "HS256")
         payload, header = JWT.decode(token, "key", "HS256")
-        payload.should eq({ "foo" => "bar" })
+        payload.should eq({"foo" => "bar"})
       end
     end
   end
@@ -26,7 +26,7 @@ describe "sub claim" do
     context ":sub option is passed to .decode" do
       context "sub does not match" do
         it "raises InvalidSubjectError" do
-          payload = { "sub" => "Esperanto" }
+          payload = {"sub" => "Esperanto"}
           token = JWT.encode(payload, "key", "HS256")
           expect_raises(JWT::InvalidSubjectError, "Invalid subject (sub). Expected \"Junularo\", received \"Esperanto\"") do
             JWT.decode(token, "key", "HS256", sub: "Junularo")
@@ -36,20 +36,20 @@ describe "sub claim" do
 
       context "sub matches" do
         it "accepts the token" do
-          payload = { "sub" => "Esperanto" }
+          payload = {"sub" => "Esperanto"}
           token = JWT.encode(payload, "key", "HS256")
           payload, header = JWT.decode(token, "key", "HS256", sub: "Esperanto")
-          payload.should eq({ "sub" => "Esperanto" })
+          payload.should eq({"sub" => "Esperanto"})
         end
       end
     end
 
     context ":sub option is not passed to .decode" do
       it "accepts token" do
-        payload = { "sub" => "Esperanto" }
+        payload = {"sub" => "Esperanto"}
         token = JWT.encode(payload, "key", "HS256")
         payload, header = JWT.decode(token, "key", "HS256")
-        payload.should eq({ "sub" => "Esperanto" })
+        payload.should eq({"sub" => "Esperanto"})
       end
     end
   end

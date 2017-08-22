@@ -3,12 +3,12 @@ require "../../spec_helper"
 describe JWT do
   secret_key = "$ecretKey"
   wrong_key = "WrongKey"
-  payload = { "foo" => "bar" }
+  payload = {"foo" => "bar"}
 
   algorithms = [
     ["HS256", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmb28iOiJiYXIifQ.JrpaO9b4_55fVBXe8LgOIkKBTjSE7-pqm5pfzh9wzOM"],
     ["HS384", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJmb28iOiJiYXIifQ.l7UMuFdyQGfcI06CfxK9xk7NmGbRShs7IDdQ5qVi8MXlaCn1o6WEQyJTduOEbPhp"],
-    ["HS512", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJmb28iOiJiYXIifQ.cuIGPzgyhGTXJzO7FojzjcH7wZDc2005e1MChS-5KJOo1ON4g_k3ZSyxcKiE7rK8VJuVnL7X7EM2GQG2mVgOxQ"]
+    ["HS512", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJmb28iOiJiYXIifQ.cuIGPzgyhGTXJzO7FojzjcH7wZDc2005e1MChS-5KJOo1ON4g_k3ZSyxcKiE7rK8VJuVnL7X7EM2GQG2mVgOxQ"],
   ]
 
   algorithms.each do |alg_data|
@@ -23,7 +23,6 @@ describe JWT do
         decoded_token[0].should eq(payload)
         decoded_token[1].should eq({"typ" => "JWT", "alg" => alg})
       end
-
 
       describe "#decode" do
         context "when token was signed with another key" do

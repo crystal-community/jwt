@@ -2,7 +2,7 @@ require "../src/jwt"
 
 # Create token that expires in 1 minute
 exp = Time.now.epoch + 60
-payload = { "foo" => "bar", "exp" => exp }
+payload = {"foo" => "bar", "exp" => exp}
 token = JWT.encode(payload, "SecretKey", "HS256")
 
 # Can be decoded

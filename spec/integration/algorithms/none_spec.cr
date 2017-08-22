@@ -3,7 +3,7 @@ require "../../spec_helper"
 describe "none algorithm" do
   alg = "none"
   secret_key = "$ecretKey"
-  payload = { "foo" => "bar" }
+  payload = {"foo" => "bar"}
   expected_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJmb28iOiJiYXIifQ."
 
   it "generates proper token, that can be decoded" do

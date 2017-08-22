@@ -1,7 +1,7 @@
 require "../src/jwt"
 
 # Encoding
-payload = { "foo" => "bar" }
+payload = {"foo" => "bar"}
 token = JWT.encode(payload, "SecretKey", "HS256")
 pp token
 
