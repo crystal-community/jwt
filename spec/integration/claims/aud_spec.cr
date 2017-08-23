@@ -6,7 +6,7 @@ describe "aud claim" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar"}, "key", "HS256")
         payload, header = JWT.decode(token, "key", "HS256")
-        payload.should eq({ "foo" => "bar" })
+        payload.should eq({"foo" => "bar"})
       end
     end
 
@@ -25,7 +25,7 @@ describe "aud claim" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => "sergey"}, "key", "HS256")
         payload, header = JWT.decode(token, "key", "HS256")
-        payload.should eq({ "foo" => "bar", "aud" => "sergey" })
+        payload.should eq({"foo" => "bar", "aud" => "sergey"})
       end
     end
 
@@ -33,7 +33,7 @@ describe "aud claim" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => "sergey"}, "key", "HS256")
         payload, header = JWT.decode(token, "key", "HS256", aud: "sergey")
-        payload.should eq({ "foo" => "bar", "aud" => "sergey" })
+        payload.should eq({"foo" => "bar", "aud" => "sergey"})
       end
     end
 
@@ -52,7 +52,7 @@ describe "aud claim" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => ["sergey", "julia"]}, "key", "HS256")
         payload, header = JWT.decode(token, "key", "HS256")
-        payload.should eq({ "foo" => "bar", "aud" => ["sergey", "julia"] })
+        payload.should eq({"foo" => "bar", "aud" => ["sergey", "julia"]})
       end
     end
 
@@ -61,10 +61,10 @@ describe "aud claim" do
         token = JWT.encode({"foo" => "bar", "aud" => ["sergey", "julia"]}, "key", "HS256")
 
         payload, header = JWT.decode(token, "key", "HS256", aud: "julia")
-        payload.should eq({ "foo" => "bar", "aud" => ["sergey", "julia"] })
+        payload.should eq({"foo" => "bar", "aud" => ["sergey", "julia"]})
 
         payload, header = JWT.decode(token, "key", "HS256", aud: "sergey")
-        payload.should eq({ "foo" => "bar", "aud" => ["sergey", "julia"] })
+        payload.should eq({"foo" => "bar", "aud" => ["sergey", "julia"]})
       end
     end
 

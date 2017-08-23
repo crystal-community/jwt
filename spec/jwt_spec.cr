@@ -22,10 +22,9 @@ describe JWT do
     it "decodes and verifies JWT" do
       token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrMSI6InYxIiwiazIiOiJ2MiJ9.spzfy63YQSKdoM3av9HHvLtWzFjPd1hbch2g3T1-nu4"
       payload, header = JWT.decode(token, "SecretKey", "HS256")
-      header.should eq({"typ" => "JWT","alg" => "HS256"})
-      payload.should eq({"k1" => "v1","k2" => "v2"})
+      header.should eq({"typ" => "JWT", "alg" => "HS256"})
+      payload.should eq({"k1" => "v1", "k2" => "v2"})
     end
-
   end
 
   describe "#encode_header" do

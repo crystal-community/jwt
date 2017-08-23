@@ -1,6 +1,6 @@
 require "../src/jwt"
 
-payload = { "foo" => "bar", "iss" => "me"}
+payload = {"foo" => "bar", "iss" => "me"}
 token = JWT.encode(payload, "SecretKey", "HS256")
 
 # OK, because iss matches

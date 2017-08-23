@@ -35,8 +35,8 @@ module JWT
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json).as_h
 
-    validate_exp!(payload["exp"])       if payload["exp"]?
-    validate_nbf!(payload["nbf"])       if payload["nbf"]?
+    validate_exp!(payload["exp"]) if payload["exp"]?
+    validate_nbf!(payload["nbf"]) if payload["nbf"]?
     validate_aud!(payload, opts[:aud]?) if opts[:aud]?
     validate_iss!(payload, opts[:iss]?) if opts[:iss]?
     validate_sub!(payload, opts[:sub]?) if opts[:sub]?
@@ -49,7 +49,7 @@ module JWT
   end
 
   def encode_header(algorithm : String) : String
-    header = { "typ" => "JWT", "alg" => algorithm }
+    header = {"typ" => "JWT", "alg" => algorithm}
     json = header.to_json
     base64_encode(json)
   end

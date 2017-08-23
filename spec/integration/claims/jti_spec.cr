@@ -4,7 +4,6 @@ describe "jti claim" do
   context "token does not contain jti" do
     context ":jti option is passed to .decode" do
       it "raises InvalidJtiError" do
-
       end
     end
   end
