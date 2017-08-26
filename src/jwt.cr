@@ -21,8 +21,10 @@ module JWT
     unless segments.size == 3
       raise DecodeError.new("Not enough or too many segments in the token")
     end
+
     encoded_header, encoded_payload, encoded_signature = segments
     expected_encoded_signature = encoded_signature(algorithm, key, "#{encoded_header}.#{encoded_payload}")
+
     if encoded_signature != expected_encoded_signature
       raise VerificationError.new("Signature verification failed")
     end
