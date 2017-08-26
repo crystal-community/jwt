@@ -21,10 +21,8 @@ module JWT
     unless segments.size == 3
       raise DecodeError.new("Not enough or too many segments in the token")
     end
-
     encoded_header, encoded_payload, encoded_signature = segments
     expected_encoded_signature = encoded_signature(algorithm, key, "#{encoded_header}.#{encoded_payload}")
-
     if encoded_signature != expected_encoded_signature
       raise VerificationError.new("Signature verification failed")
     end
@@ -82,12 +80,16 @@ module JWT
   end
 
   private def validate_exp!(exp)
+    # Check if we receive exp as ms instead of s
+    exp = exp.to_s.to_i64 / 1000 if exp.to_s.size == 13
     if exp.to_s.to_i < Time.now.epoch
       raise ExpiredSignatureError.new("Signature is expired")
     end
   end
 
   private def validate_nbf!(nbf)
+    # Check if we receive nbf as ms instead of s
+    nbf = nbf.to_s.to_i64 / 1000 if nbf.to_s.size == 13
     if nbf.to_s.to_i > Time.now.epoch
       raise ImmatureSignatureError.new("Signature nbf has not been reached")
     end
