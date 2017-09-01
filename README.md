@@ -25,7 +25,7 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   jwt:
-    github: crystal-community/crystal-jwt
+    github: crystal-community/jwt
 ```
 
 ## Usage
