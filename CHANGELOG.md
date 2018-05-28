@@ -1,3 +1,7 @@
+#### v0.2.3 2018-05-28
+
+* Joined crystal-community org
+
 #### v0.2.2 2016-12-12
 
 * Compatibility with Crystal 0.20 (alanwillms)
