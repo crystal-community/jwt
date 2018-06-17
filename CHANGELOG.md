@@ -1,3 +1,7 @@
+#### v0.3.0 2018-06-17
+
+* Compatibility with Crystal 0.25
+
 #### v0.2.3 2018-05-28
 
 * Joined crystal-community org
