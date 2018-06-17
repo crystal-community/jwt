@@ -96,13 +96,12 @@ module JWT
   private def validate_aud!(payload, aud)
     if !payload["aud"]?
       raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received nothing")
-    elsif payload["aud"].is_a?(String)
-      if aud != payload["aud"]
+    elsif payload["aud"].as_s?
+      if aud != payload["aud"].as_s
         raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received #{payload["aud"].inspect}")
       end
-    elsif payload["aud"].is_a?(Array)
-      # to prevent compile-time error
-      auds = payload["aud"].as(Array)
+    elsif payload["aud"].as_a?
+      auds = payload["aud"].as_a
       if !auds.includes?(aud)
         msg = "Invalid audience (aud). Expected #{aud.inspect}, received #{payload["aud"].inspect}"
         raise InvalidAudienceError.new(msg)
