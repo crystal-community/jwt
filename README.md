@@ -66,7 +66,7 @@ Example:
 
 ```crystal
 # Create token that expires in 1 minute
-exp = Time.now.epoch + 60
+exp = Time.now.to_unix + 60
 payload = { "foo" => "bar", "exp" => exp }
 token = JWT.encode(payload, "SecretKey", "HS256")
 
@@ -87,7 +87,7 @@ Example:
 
 ```crystal
 # Create token that will become acceptable in 1 minute
-nbf = Time.now.epoch + 60
+nbf = Time.now.to_unix + 60
 payload = { "foo" => "bar", "nbf" => nbf }
 token = JWT.encode(payload, "SecretKey", "HS256")
 
@@ -101,7 +101,7 @@ From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.6):
 
 Example:
 ```crystal
-payload = { "foo" => "bar", "iat" => Time.now.epoch }
+payload = { "foo" => "bar", "iat" => Time.now.to_unix }
 token = JWT.encode(payload, "SecretKey", "HS256")
 ```
 

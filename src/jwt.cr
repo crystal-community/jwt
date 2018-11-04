@@ -82,13 +82,13 @@ module JWT
   end
 
   private def validate_exp!(exp)
-    if exp.to_s.to_i < Time.now.epoch
+    if exp.to_s.to_i < Time.now.to_unix
       raise ExpiredSignatureError.new("Signature is expired")
     end
   end
 
   private def validate_nbf!(nbf)
-    if nbf.to_s.to_i > Time.now.epoch
+    if nbf.to_s.to_i > Time.now.to_unix
       raise ImmatureSignatureError.new("Signature nbf has not been reached")
     end
   end

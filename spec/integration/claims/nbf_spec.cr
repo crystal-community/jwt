@@ -3,7 +3,7 @@ require "../../spec_helper"
 describe "nbf claim" do
   context "nbf is in the future" do
     it "raises ImmatureSignatureError" do
-      nbf = Time.now.epoch + 2
+      nbf = Time.now.to_unix + 2
       payload = {"nbf" => nbf}
       token = JWT.encode(payload, "key", "HS256")
       expect_raises(JWT::ImmatureSignatureError, "Signature nbf has not been reached") do
@@ -14,7 +14,7 @@ describe "nbf claim" do
 
   context "nbf is now" do
     it "accepts token" do
-      nbf = Time.now.epoch
+      nbf = Time.now.to_unix
       payload = {"nbf" => nbf}
       token = JWT.encode(payload, "key", "HS256")
       payload, header = JWT.decode(token, "key", "HS256")
@@ -24,7 +24,7 @@ describe "nbf claim" do
 
   context "nbf is in the past" do
     it "accepts token" do
-      nbf = Time.now.epoch - 1
+      nbf = Time.now.to_unix - 1
       payload = {"nbf" => nbf}
       token = JWT.encode(payload, "key", "HS256")
       payload, header = JWT.decode(token, "key", "HS256")
