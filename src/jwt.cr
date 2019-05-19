@@ -15,7 +15,7 @@ module JWT
     segments.join(".")
   end
 
-  def decode(token : String, key : String, algorithm : String, **opts) : Tuple
+  def decode(token : String, key : String, algorithm : String, verify : Bool = true, **opts) : Tuple
     segments = token.split(".")
 
     unless segments.size == 3
@@ -23,10 +23,13 @@ module JWT
     end
 
     encoded_header, encoded_payload, encoded_signature = segments
-    expected_encoded_signature = encoded_signature(algorithm, key, "#{encoded_header}.#{encoded_payload}")
 
-    if encoded_signature != expected_encoded_signature
-      raise VerificationError.new("Signature verification failed")
+    if verify
+      expected_encoded_signature = encoded_signature(algorithm, key, "#{encoded_header}.#{encoded_payload}")
+
+      if encoded_signature != expected_encoded_signature
+        raise VerificationError.new("Signature verification failed")
+      end
     end
 
     header_json = Base64.decode_string(encoded_header)

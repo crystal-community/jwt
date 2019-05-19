@@ -26,10 +26,23 @@ describe JWT do
 
       describe "#decode" do
         context "when token was signed with another key" do
-          it "raises JWT::VerificationError" do
-            token = JWT.encode(payload, wrong_key, alg)
-            expect_raises(JWT::VerificationError, "Signature verification failed") do
-              JWT.decode(token, secret_key, alg)
+          context "when verify argument is true" do
+            it "raises JWT::VerificationError" do
+              token = JWT.encode(payload, wrong_key, alg)
+              expect_raises(JWT::VerificationError, "Signature verification failed") do
+                JWT.decode(token, secret_key, alg)
+              end
+            end
+          end
+
+          context "when verify argument is false" do
+            it "decodes the token" do
+              token = JWT.encode(payload, wrong_key, alg)
+
+              decoded_token = JWT.decode(token, "", alg, verify: false)
+
+              decoded_token[0].should eq(payload)
+              decoded_token[1].should eq({"typ" => "JWT", "alg" => alg})
             end
           end
         end
