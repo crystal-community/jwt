@@ -1,7 +1,7 @@
 require "json"
 require "base64"
 require "openssl/hmac"
-require "openssl_ext/rsa"
+require "openssl_ext"
 
 require "./jwt/*"
 
@@ -76,15 +76,15 @@ module JWT
       OpenSSL::HMAC.digest(:sha512, key, data)
     when "RS256"
       rsa = OpenSSL::RSA.new(key)
-      digest = OpenSSL::Digest.new(:sha256)
+      digest = OpenSSL::Digest.new("sha256")
       rsa.sign(digest, data)
     when "RS384"
       rsa = OpenSSL::RSA.new(key)
-      digest = OpenSSL::Digest.new(:sha384)
+      digest = OpenSSL::Digest.new("sha384")
       rsa.sign(digest, data)
     when "RS512"
       rsa = OpenSSL::RSA.new(key)
-      digest = OpenSSL::Digest.new(:sha512)
+      digest = OpenSSL::Digest.new("sha512")
       rsa.sign(digest, data)
     else raise(UnsupportedAlogrithmError.new("Unsupported algorithm: #{algorithm}"))
     end
