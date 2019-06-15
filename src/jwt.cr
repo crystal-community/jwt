@@ -8,9 +8,9 @@ require "./jwt/*"
 module JWT
   extend self
 
-  def encode(payload, key : String, algorithm : String) : String
+  def encode(payload, key : String, algorithm : String, **header_keys) : String
     segments = [] of String
-    segments << encode_header(algorithm)
+    segments << encode_header(algorithm, **header_keys)
     segments << encode_payload(payload)
     segments << encoded_signature(algorithm, key, segments.join("."))
     segments.join(".")
@@ -49,10 +49,9 @@ module JWT
     raise DecodeError.new("Invalid JSON")
   end
 
-  def encode_header(algorithm : String) : String
-    header = {"typ" => "JWT", "alg" => algorithm}
-    json = header.to_json
-    base64_encode(json)
+  def encode_header(algorithm : String, **keys) : String
+    header = {typ: "JWT", alg: algorithm}.merge(keys)
+    base64_encode(header.to_json)
   end
 
   def encode_payload(payload) : String
