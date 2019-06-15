@@ -45,7 +45,7 @@ payload, header = JWT.decode(token, "$secretKey", "HS256")
 ## Supported algorithms
 * [x] none
 * [x] HMAC (HS256, HS384, HS512)
-* [ ] RSA - in progress
+* [x] RSA (RS256, RS384, RS512)
 
 ## Supported reserved claim names
 JSON Web Token defines some reserved claim names and how they should be used.
