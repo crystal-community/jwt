@@ -33,11 +33,11 @@ dependencies:
 ```crystal
 # Encoding
 payload = { "foo" => "bar" }
-token = JWT.encode(payload, "SecretKey", "HS256")
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 # => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmb28iOiJiYXIifQ.Y3shN5Wh4FmOPM34biIm9QQmat373hJFKNxgSANQWJo"
 
 # Decoding
-payload, header = JWT.decode(token, "$secretKey", "HS256")
+payload, header = JWT.decode(token, "$secretKey", JWT::Algorithm::HS256)
 # payload = {"foo" => "bar"}
 # header = {"typ" => "JWT", "alg" => "HS256"}
 
@@ -73,14 +73,14 @@ Example:
 # Create token that expires in 1 minute
 exp = Time.now.to_unix + 60
 payload = { "foo" => "bar", "exp" => exp }
-token = JWT.encode(payload, "SecretKey", "HS256")
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 
 # At this moment token can be decoded
-payload, header = JWT.decode(token, "SecretKey", "HS256")
+payload, header = JWT.decode(token, "SecretKey", JWT::Algorithm::HS256)
 
 sleep 61
 # Now token is expired, so JWT::ExpiredSignatureError will be raised
-payload, header = JWT.decode(token, "SecretKey", "HS256")
+payload, header = JWT.decode(token, "SecretKey", JWT::Algorithm::HS256)
 ```
 
 ### Not Before Time (nbf)
@@ -94,10 +94,10 @@ Example:
 # Create token that will become acceptable in 1 minute
 nbf = Time.now.to_unix + 60
 payload = { "foo" => "bar", "nbf" => nbf }
-token = JWT.encode(payload, "SecretKey", "HS256")
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 
 # Currently it's not acceptable, raises JWT::ImmatureSignatureError
-JWT.decode(token, "SecretKey", "HS256")
+JWT.decode(token, "SecretKey", JWT::Algorithm::HS256)
 ```
 
 ### Issued At (iat)
@@ -107,7 +107,7 @@ From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.6):
 Example:
 ```crystal
 payload = { "foo" => "bar", "iat" => Time.now.to_unix }
-token = JWT.encode(payload, "SecretKey", "HS256")
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 ```
 
 ### Audience (aud)
@@ -117,13 +117,13 @@ From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.3):
 Example:
 ```crystal
 payload = {"foo" => "bar", "aud" => ["sergey", "julia"]}
-token = JWT.encode(payload, "key", "HS256")
+token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
 
 # OK, aud matches
-payload, header = JWT.decode(token, "key", "HS256", aud: "sergey")
+payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "sergey")
 
 # aud does not match, raises JWT::InvalidAudienceError
-payload, header = JWT.decode(token, "key", "HS256", aud: "max")
+payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "max")
 ```
 
 ### Issuer (iss)
@@ -136,10 +136,10 @@ payload = { "foo" => "bar", "iss" => "me"}
 token = JWT.encode(payload, "SecretKey", "HS256")
 
 # OK, because iss matches
-payload, header = JWT.decode(token, "SecretKey", "HS256", iss: "me")
+payload, header = JWT.decode(token, "SecretKey", JWT::Algorithm::HS256, iss: "me")
 
 # iss does not match, raises JWT::InvalidIssuerError
-payload, header = JWT.decode(token, "SecretKey", "HS256", iss: "you")
+payload, header = JWT.decode(token, "SecretKey", JWT::Algorithm::HS256, iss: "you")
 ```
 
 ### Subject (sub)
@@ -149,10 +149,10 @@ From [RFC 7519](https://tools.ietf.org/html/rfc7519#section-4.1.2):
 Example:
 ```crystal
 payload = { "nomo" => "Sergeo", "sub" => "Esperanto" }
-token = JWT.encode(payload, "key", "HS256")
+token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
 
 # Raises JWT::InvalidSubjectError, because "sub" claim does not match
-JWT.decode(token, "key", "HS256", sub: "Junularo")
+JWT.decode(token, "key", JWT::Algorithm::HS256, sub: "Junularo")
 ```
 
 ### JWT ID (jti)
@@ -165,7 +165,7 @@ require "secure_random"
 
 jti = SecureRandom.urlsafe_base64
 payload = { "foo" => "bar", "jti" => jti }
-token = JWT.encode(payload, "SecretKey", "HS256")
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 ```
 
 
