@@ -3,11 +3,11 @@ require "../src/jwt"
 # Create token that expires in 1 minute
 exp = Time.now.to_unix + 60
 payload = {"foo" => "bar", "exp" => exp}
-token = JWT.encode(payload, "SecretKey", "HS256")
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 
 # Can be decoded
-payload, header = JWT.decode(token, "SecretKey", "HS256")
+payload, header = JWT.decode(token, "SecretKey", JWT::Algorithm::HS256)
 
 sleep 61
 # Already is expired, raises JWT::ExpiredSignatureError
-payload, header = JWT.decode(token, "SecretKey", "HS256")
+payload, header = JWT.decode(token, "SecretKey", JWT::Algorithm::HS256)
