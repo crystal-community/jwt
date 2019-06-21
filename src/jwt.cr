@@ -8,7 +8,17 @@ require "./jwt/*"
 module JWT
   extend self
 
-  def encode(payload, key : String, algorithm : String, **header_keys) : String
+  enum Algorithm
+    None
+    HS256
+    HS384
+    HS512
+    RS256
+    RS384
+    RS512
+  end
+
+  def encode(payload, key : String, algorithm : Algorithm, **header_keys) : String
     segments = [] of String
     segments << encode_header(algorithm, **header_keys)
     segments << encode_payload(payload)
@@ -16,36 +26,34 @@ module JWT
     segments.join(".")
   end
 
-  def decode(token : String, key : String = "", algorithm : String? = nil, verify = true, validate = true, **opts) : Tuple
-    segments = token.split(".")
+  def decode(token : String, key : String = "", algorithm : Algorithm = Algorithm::None, verify = true, validate = true, **opts) : Tuple
+    verify_data, dot, encoded_signature = token.rpartition('.')
 
-    unless segments.size == 3
-      raise DecodeError.new("Not enough or too many segments in the token")
+    count = verify_data.count('.')
+    if count != 1
+      raise DecodeError.new("Invalid number of segments in the token. Expected 3 got #{count + 2}")
     end
 
-    encoded_header, encoded_payload, encoded_signature = segments
-    header_json = Base64.decode_string(encoded_header)
-    header = JSON.parse(header_json).as_h
-
     if verify
-      alg = algorithm || header["alg"].as_s
-      verify_data = "#{encoded_header}.#{encoded_payload}"
-
       # public key verification for RSA and ECDSA algorithms
-      case alg
-      when "RS256", "RS384", "RS512"
+      case algorithm
+      when Algorithm::RS256, Algorithm::RS384, Algorithm::RS512
         rsa = OpenSSL::RSA.new(key)
-        digest = OpenSSL::Digest.new("sha#{alg[2..-1]}")
+        digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
         if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
           raise VerificationError.new("Signature verification failed")
         end
       else
-        expected_encoded_signature = encoded_signature(alg, key, verify_data)
+        expected_encoded_signature = encoded_signature(algorithm, key, verify_data)
         if encoded_signature != expected_encoded_signature
           raise VerificationError.new("Signature verification failed")
         end
       end
     end
+
+    encoded_header, encoded_payload = verify_data.split('.')
+    header_json = Base64.decode_string(encoded_header)
+    header = JSON.parse(header_json).as_h
 
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json).as_h
@@ -65,8 +73,9 @@ module JWT
     raise DecodeError.new("Invalid JSON")
   end
 
-  def encode_header(algorithm : String, **keys) : String
-    header = {typ: "JWT", alg: algorithm}.merge(keys)
+  def encode_header(algorithm : Algorithm, **keys) : String
+    alg = algorithm == Algorithm::None ? "none" : algorithm.to_s
+    header = {typ: "JWT", alg: alg}.merge(keys)
     base64_encode(header.to_json)
   end
 
@@ -75,25 +84,25 @@ module JWT
     base64_encode(json)
   end
 
-  def encoded_signature(algorithm : String, key : String, data : String)
+  def encoded_signature(algorithm : Algorithm, key : String, data : String)
     signature = sign(algorithm, key, data)
     base64_encode(signature)
   end
 
-  def sign(algorithm : String, key : String, data : String)
+  def sign(algorithm : Algorithm, key : String, data : String)
     case algorithm
-    when "none" then ""
-    when "HS256"
+    when Algorithm::None then ""
+    when Algorithm::HS256
       OpenSSL::HMAC.digest(:sha256, key, data)
-    when "HS384"
+    when Algorithm::HS384
       OpenSSL::HMAC.digest(:sha384, key, data)
-    when "HS512"
+    when Algorithm::HS512
       OpenSSL::HMAC.digest(:sha512, key, data)
-    when "RS256"
+    when Algorithm::RS256
       OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha256"), data)
-    when "RS384"
+    when Algorithm::RS384
       OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
-    when "RS512"
+    when Algorithm::RS512
       OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
     else raise(UnsupportedAlogrithmError.new("Unsupported algorithm: #{algorithm}"))
     end

@@ -28,27 +28,25 @@ describe JWT do
   wrong_key = OpenSSL::RSA.new(1024).to_pem
   payload = {"foo" => "bar"}
 
-  algorithms = [
-    ["RS256", "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJmb28iOiJiYXIifQ.rJUpucYWdjmGiVGHrU4TMwfYNcF52Hm1Q4hJfHhfUPvVL-S0fRHRgwNns90MDOFReXH8_6swbtezzeuQleSY-NdYLEvnXwYHzjLP-Bxc3mrKNMnf8ta1lYB7NqdnIu2nqcNjflJBubn5sIi7-zZew_ohqgMP8H7ptDuICr7ibGQ"],
-    ["RS384", "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCJ9.eyJmb28iOiJiYXIifQ.FfdS8chkIE-PRU61h8VLZgVYvKI3yAvaEpGjqDP0ypGa_0rF6iOCkRuEByhBsH-lCVmKcU-1bp3OsEGXtuYlthpklM76gDDP4YMss2mdH4_xr6P9UQ7lL_xb8inOCbnNMsm7xecIPElDkJ5W22iwF2fbi67p9hlJwgcfBsyfqX4"],
-    ["RS512", "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJmb28iOiJiYXIifQ.StG6Du1SpGrP7BdFyW6VjMwHudEdekdlJjbT1ByWFPerp7hZ1P7ukHOFMzVVOm6e0xLO6XGk11jDvC_zG2wunjEoMKYY_DuSmUOjVcZVz5m5korH9PJNJRREoQPa42QTVUaMeuv8A3xlq6_SG9wLCGVib4JsIFyS1qPzS3PlNZg"],
-  ]
+  algorithms = {
+    JWT::Algorithm::RS256 => "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJmb28iOiJiYXIifQ.rJUpucYWdjmGiVGHrU4TMwfYNcF52Hm1Q4hJfHhfUPvVL-S0fRHRgwNns90MDOFReXH8_6swbtezzeuQleSY-NdYLEvnXwYHzjLP-Bxc3mrKNMnf8ta1lYB7NqdnIu2nqcNjflJBubn5sIi7-zZew_ohqgMP8H7ptDuICr7ibGQ",
+    JWT::Algorithm::RS384 => "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzM4NCJ9.eyJmb28iOiJiYXIifQ.FfdS8chkIE-PRU61h8VLZgVYvKI3yAvaEpGjqDP0ypGa_0rF6iOCkRuEByhBsH-lCVmKcU-1bp3OsEGXtuYlthpklM76gDDP4YMss2mdH4_xr6P9UQ7lL_xb8inOCbnNMsm7xecIPElDkJ5W22iwF2fbi67p9hlJwgcfBsyfqX4",
+    JWT::Algorithm::RS512 => "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJmb28iOiJiYXIifQ.StG6Du1SpGrP7BdFyW6VjMwHudEdekdlJjbT1ByWFPerp7hZ1P7ukHOFMzVVOm6e0xLO6XGk11jDvC_zG2wunjEoMKYY_DuSmUOjVcZVz5m5korH9PJNJRREoQPa42QTVUaMeuv8A3xlq6_SG9wLCGVib4JsIFyS1qPzS3PlNZg",
+  }
 
-  algorithms.each do |alg_data|
-    alg, expected_token = alg_data
-
+  algorithms.each do |alg, expected_token|
     describe "algorithm #{alg}" do
       it "generates proper token, that can be decoded" do
         token = JWT.encode(payload, private_key, alg)
         token.should eq(expected_token)
 
-        decoded_token = JWT.decode(token, public_key)
+        decoded_token = JWT.decode(token, public_key, alg)
         decoded_token[0].should eq(payload)
-        decoded_token[1].should eq({"typ" => "JWT", "alg" => alg})
+        decoded_token[1].should eq({"typ" => "JWT", "alg" => alg.to_s})
 
-        decoded_token = JWT.decode(token, private_key)
+        decoded_token = JWT.decode(token, private_key, alg)
         decoded_token[0].should eq(payload)
-        decoded_token[1].should eq({"typ" => "JWT", "alg" => alg})
+        decoded_token[1].should eq({"typ" => "JWT", "alg" => alg.to_s})
       end
 
       describe "#decode" do

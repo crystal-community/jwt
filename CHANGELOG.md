@@ -1,3 +1,9 @@
+#### v1.1.0 2018-06-17
+
+* Adds RSA token support
+* Supports skipping verification and validation
+* BREAKING: uses enum to select JWT Algorithm
+
 #### v0.3.0 2018-06-17
 
 * Compatibility with Crystal 0.25

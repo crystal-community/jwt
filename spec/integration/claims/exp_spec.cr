@@ -5,8 +5,8 @@ describe "exp claim" do
     it "token is accepted" do
       exp = Time.now.to_unix + 10
       payload = {"exp" => exp}
-      token = JWT.encode(payload, "key", "HS256")
-      payload, header = JWT.decode(token, "key", "HS256")
+      token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
+      payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
       payload.should eq({"exp" => exp})
     end
   end
@@ -15,9 +15,9 @@ describe "exp claim" do
     it "raises VerificationError" do
       exp = Time.now.to_unix - 1
       payload = {"exp" => exp}
-      token = JWT.encode(payload, "key", "HS256")
+      token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
       expect_raises(JWT::ExpiredSignatureError, "Signature is expired") do
-        JWT.decode(token, "key", "HS256")
+        JWT.decode(token, "key", JWT::Algorithm::HS256)
       end
     end
   end
