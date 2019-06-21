@@ -40,6 +40,14 @@ token = JWT.encode(payload, "SecretKey", "HS256")
 payload, header = JWT.decode(token, "$secretKey", "HS256")
 # payload = {"foo" => "bar"}
 # header = {"typ" => "JWT", "alg" => "HS256"}
+
+# The algorithm can optionally be determined from the header
+payload, header = JWT.decode(token, "$secretKey")
+
+# You can optionally ignore verification and validation if you want to inspect the token
+payload, header = JWT.decode(token, verify: false, validate: false)
+# Verification checks the signature
+# Validation is checking if the token has expired etc
 ```
 
 ## Supported algorithms

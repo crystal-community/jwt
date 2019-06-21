@@ -1,21 +1,29 @@
 require "../../spec_helper"
 
 describe JWT do
-  secret_key = "-----BEGIN RSA PRIVATE KEY-----
-MIICXQIBAAKBgQC5+5+xnWggxNnnmCSNbIwTQFjcyawcvmPupeXs10sfhUAHUxtm
-T5zH3AI46JrRZN7KV5Ac5bQWzF9ZMPeHqmq5FBdYooIF8W7lVtYx23OQX5vjFRN0
-LRY8hyOKL07Us+aUeMwDXX7M6o58XO4bqOh8pGOqFLscCAkdAP9lDgeDGwIDAQAB
-AoGAcRt/jnSNbEhrwXZ83GmkctzSbkxUWRLNEclhIP36WQwf2ZSIeFt4nO/Hhjao
-WSqAeAxyv7BPKwJWBpdKIv7Ycfbu2c1JxWgacuotewMk5IYPXUs89QY3AL5I4BJd
-Zqd3o9K4OWwakukkfjxHKFC/grifNa4yVQ6IZn+XuW/AspkCQQDlmzkUapzg0n0t
-3gmK6KQD9f5YdXKYGYzYO3Scrtrz53fewqfDXdLC7TGL9qw9vGEFvSE727vwR3X+
-+DZ6RWYvAkEAz1yqUNnrPwzGx3JuINIXgfzGTq4gSf+xRjb5qDJUPnMt4I3PrPyV
-pm34aUCgo26go2+itBGjzFDaJCOT4izi1QJAJq6E6kSf01yCzFRo5ScWYrhxtjNr
-L+a2DMPPfIoUxxyK3FOM8eP/mulc/Ih9MhVnfxEC5VO6kNtpLKBihSzl7wJBAJrR
-4eu5uJV7kZJqEmV41spbkyg9g6gcOxxkgWQeJ5302wT0fGD4uTbolnbnJMjBGTjN
-adot7XDn0Ob4lTpiLv0CQQDkECppYQ4N0ecegg1xPVqf19fHo/WGHGuScjfUPTI/
-k0LaJjYM2ycehinmuLHgY3qdDJgtEbt4WG5XNQzhyfaN
------END RSA PRIVATE KEY-----"
+  private_key = "-----BEGIN PRIVATE KEY-----\n" +
+                "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBALn7n7GdaCDE2eeY\n" +
+                "JI1sjBNAWNzJrBy+Y+6l5ezXSx+FQAdTG2ZPnMfcAjjomtFk3spXkBzltBbMX1kw\n" +
+                "94eqarkUF1iiggXxbuVW1jHbc5Bfm+MVE3QtFjyHI4ovTtSz5pR4zANdfszqjnxc\n" +
+                "7huo6HykY6oUuxwICR0A/2UOB4MbAgMBAAECgYBxG3+OdI1sSGvBdnzcaaRy3NJu\n" +
+                "TFRZEs0RyWEg/fpZDB/ZlIh4W3ic78eGNqhZKoB4DHK/sE8rAlYGl0oi/thx9u7Z\n" +
+                "zUnFaBpy6i17AyTkhg9dSzz1BjcAvkjgEl1mp3ej0rg5bBqS6SR+PEcoUL+CuJ81\n" +
+                "rjJVDohmf5e5b8CymQJBAOWbORRqnODSfS3eCYropAP1/lh1cpgZjNg7dJyu2vPn\n" +
+                "d97Cp8Nd0sLtMYv2rD28YQW9ITvbu/BHdf74NnpFZi8CQQDPXKpQ2es/DMbHcm4g\n" +
+                "0heB/MZOriBJ/7FGNvmoMlQ+cy3gjc+s/JWmbfhpQKCjbqCjb6K0EaPMUNokI5Pi\n" +
+                "LOLVAkAmroTqRJ/TXILMVGjlJxZiuHG2M2sv5rYMw898ihTHHIrcU4zx4/+a6Vz8\n" +
+                "iH0yFWd/EQLlU7qQ22ksoGKFLOXvAkEAmtHh67m4lXuRkmoSZXjWyluTKD2DqBw7\n" +
+                "HGSBZB4nnfTbBPR8YPi5NuiWduckyMEZOM1p2i3tcOfQ5viVOmIu/QJBAOQQKmlh\n" +
+                "Dg3R5x6CDXE9Wp/X18ej9YYca5JyN9Q9Mj+TQtomNgzbJx6GKea4seBjep0MmC0R\n" +
+                "u3hYblc1DOHJ9o0=\n" +
+                "-----END PRIVATE KEY-----\n"
+
+  public_key = "-----BEGIN PUBLIC KEY-----\n" +
+                "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC5+5+xnWggxNnnmCSNbIwTQFjc\n" +
+                "yawcvmPupeXs10sfhUAHUxtmT5zH3AI46JrRZN7KV5Ac5bQWzF9ZMPeHqmq5FBdY\n" +
+                "ooIF8W7lVtYx23OQX5vjFRN0LRY8hyOKL07Us+aUeMwDXX7M6o58XO4bqOh8pGOq\n" +
+                "FLscCAkdAP9lDgeDGwIDAQAB\n" +
+                "-----END PUBLIC KEY-----\n"
 
   wrong_key = OpenSSL::RSA.new(1024).to_pem
   payload = {"foo" => "bar"}
@@ -31,10 +39,14 @@ k0LaJjYM2ycehinmuLHgY3qdDJgtEbt4WG5XNQzhyfaN
 
     describe "algorithm #{alg}" do
       it "generates proper token, that can be decoded" do
-        token = JWT.encode(payload, secret_key, alg)
+        token = JWT.encode(payload, private_key, alg)
         token.should eq(expected_token)
 
-        decoded_token = JWT.decode(token, secret_key, alg)
+        decoded_token = JWT.decode(token, public_key)
+        decoded_token[0].should eq(payload)
+        decoded_token[1].should eq({"typ" => "JWT", "alg" => alg})
+
+        decoded_token = JWT.decode(token, private_key)
         decoded_token[0].should eq(payload)
         decoded_token[1].should eq({"typ" => "JWT", "alg" => alg})
       end
@@ -44,8 +56,13 @@ k0LaJjYM2ycehinmuLHgY3qdDJgtEbt4WG5XNQzhyfaN
           it "raises JWT::VerificationError" do
             token = JWT.encode(payload, wrong_key, alg)
             expect_raises(JWT::VerificationError, "Signature verification failed") do
-              JWT.decode(token, secret_key, alg)
+              JWT.decode(token, public_key, alg)
             end
+          end
+
+          it "can ignore verification if requested" do
+            token = JWT.encode(payload, wrong_key, alg)
+            JWT.decode(token, verify: false)
           end
         end
 
@@ -53,7 +70,7 @@ k0LaJjYM2ycehinmuLHgY3qdDJgtEbt4WG5XNQzhyfaN
           it "raises JWT::DecodeError" do
             ["e30", "e30.e30", "e30.e30.e30.e30"].each do |invalid_token|
               expect_raises(JWT::DecodeError) do
-                JWT.decode(invalid_token, secret_key, alg)
+                JWT.decode(invalid_token, public_key, alg)
               end
             end
           end

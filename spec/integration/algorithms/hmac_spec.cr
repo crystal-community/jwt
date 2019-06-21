@@ -32,6 +32,11 @@ describe JWT do
               JWT.decode(token, secret_key, alg)
             end
           end
+
+          it "can ignore verification if requested" do
+            token = JWT.encode(payload, wrong_key, alg)
+            JWT.decode(token, verify: false)
+          end
         end
 
         context "when token contains not 3 segments" do

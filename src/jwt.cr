@@ -16,7 +16,7 @@ module JWT
     segments.join(".")
   end
 
-  def decode(token : String, key : String, algorithm : String, **opts) : Tuple
+  def decode(token : String, key : String = "", algorithm : String? = nil, verify = true, validate = true, **opts) : Tuple
     segments = token.split(".")
 
     unless segments.size == 3
@@ -24,23 +24,39 @@ module JWT
     end
 
     encoded_header, encoded_payload, encoded_signature = segments
-    expected_encoded_signature = encoded_signature(algorithm, key, "#{encoded_header}.#{encoded_payload}")
-
-    if encoded_signature != expected_encoded_signature
-      raise VerificationError.new("Signature verification failed")
-    end
-
     header_json = Base64.decode_string(encoded_header)
     header = JSON.parse(header_json).as_h
+
+    if verify
+      alg = algorithm || header["alg"].as_s
+      verify_data = "#{encoded_header}.#{encoded_payload}"
+
+      # public key verification for RSA and ECDSA algorithms
+      case alg
+      when "RS256", "RS384", "RS512"
+        rsa = OpenSSL::RSA.new(key)
+        digest = OpenSSL::Digest.new("sha#{alg[2..-1]}")
+        if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
+          raise VerificationError.new("Signature verification failed")
+        end
+      else
+        expected_encoded_signature = encoded_signature(alg, key, verify_data)
+        if encoded_signature != expected_encoded_signature
+          raise VerificationError.new("Signature verification failed")
+        end
+      end
+    end
 
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json).as_h
 
-    validate_exp!(payload["exp"]) if payload["exp"]?
-    validate_nbf!(payload["nbf"]) if payload["nbf"]?
-    validate_aud!(payload, opts[:aud]?) if opts[:aud]?
-    validate_iss!(payload, opts[:iss]?) if opts[:iss]?
-    validate_sub!(payload, opts[:sub]?) if opts[:sub]?
+    if validate
+      validate_exp!(payload["exp"]) if payload["exp"]?
+      validate_nbf!(payload["nbf"]) if payload["nbf"]?
+      validate_aud!(payload, opts[:aud]?) if opts[:aud]?
+      validate_iss!(payload, opts[:iss]?) if opts[:iss]?
+      validate_sub!(payload, opts[:sub]?) if opts[:sub]?
+    end
 
     {payload, header}
   rescue Base64::Error
@@ -74,17 +90,11 @@ module JWT
     when "HS512"
       OpenSSL::HMAC.digest(:sha512, key, data)
     when "RS256"
-      rsa = OpenSSL::RSA.new(key)
-      digest = OpenSSL::Digest.new("sha256")
-      rsa.sign(digest, data)
+      OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha256"), data)
     when "RS384"
-      rsa = OpenSSL::RSA.new(key)
-      digest = OpenSSL::Digest.new("sha384")
-      rsa.sign(digest, data)
+      OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
     when "RS512"
-      rsa = OpenSSL::RSA.new(key)
-      digest = OpenSSL::Digest.new("sha512")
-      rsa.sign(digest, data)
+      OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
     else raise(UnsupportedAlogrithmError.new("Unsupported algorithm: #{algorithm}"))
     end
   end
