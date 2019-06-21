@@ -27,7 +27,7 @@ module JWT
   end
 
   def decode(token : String, key : String = "", algorithm : Algorithm = Algorithm::None, verify = true, validate = true, **opts) : Tuple
-    verify_data, dot, encoded_signature = token.rpartition('.')
+    verify_data, _, encoded_signature = token.rpartition('.')
 
     count = verify_data.count('.')
     if count != 1

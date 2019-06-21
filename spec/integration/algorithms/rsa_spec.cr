@@ -19,11 +19,11 @@ describe JWT do
                 "-----END PRIVATE KEY-----\n"
 
   public_key = "-----BEGIN PUBLIC KEY-----\n" +
-                "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC5+5+xnWggxNnnmCSNbIwTQFjc\n" +
-                "yawcvmPupeXs10sfhUAHUxtmT5zH3AI46JrRZN7KV5Ac5bQWzF9ZMPeHqmq5FBdY\n" +
-                "ooIF8W7lVtYx23OQX5vjFRN0LRY8hyOKL07Us+aUeMwDXX7M6o58XO4bqOh8pGOq\n" +
-                "FLscCAkdAP9lDgeDGwIDAQAB\n" +
-                "-----END PUBLIC KEY-----\n"
+               "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC5+5+xnWggxNnnmCSNbIwTQFjc\n" +
+               "yawcvmPupeXs10sfhUAHUxtmT5zH3AI46JrRZN7KV5Ac5bQWzF9ZMPeHqmq5FBdY\n" +
+               "ooIF8W7lVtYx23OQX5vjFRN0LRY8hyOKL07Us+aUeMwDXX7M6o58XO4bqOh8pGOq\n" +
+               "FLscCAkdAP9lDgeDGwIDAQAB\n" +
+               "-----END PUBLIC KEY-----\n"
 
   wrong_key = OpenSSL::RSA.new(1024).to_pem
   payload = {"foo" => "bar"}
