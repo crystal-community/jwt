@@ -36,6 +36,9 @@ payload = { "foo" => "bar" }
 token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 # => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmb28iOiJiYXIifQ.Y3shN5Wh4FmOPM34biIm9QQmat373hJFKNxgSANQWJo"
 
+# Custom headers
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256, custom: "header")
+
 # Decoding
 payload, header = JWT.decode(token, "$secretKey", JWT::Algorithm::HS256)
 # payload = {"foo" => "bar"}
