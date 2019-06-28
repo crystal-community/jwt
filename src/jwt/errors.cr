@@ -3,7 +3,7 @@ module JWT
   class Error < ::Exception; end
 
   # Is raised on attempt to use unsupported algorithm.
-  class UnsupportedAlogrithmError < Error; end
+  class UnsupportedAlgorithmError < Error; end
 
   # raised when failed to decode token
   class DecodeError < Error; end

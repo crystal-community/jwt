@@ -181,7 +181,7 @@ token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
     * JWT::InvalidAudienceError
     * JWT::InvalidIssuerError
     * JWT::InvalidSubjectError
-  * UnsupportedAlogrithmError
+  * UnsupportedAlgorithmError
 
 ## Test
 
