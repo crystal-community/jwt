@@ -104,7 +104,7 @@ module JWT
       OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
     when Algorithm::RS512
       OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
-    else raise(UnsupportedAlogrithmError.new("Unsupported algorithm: #{algorithm}"))
+    else raise(UnsupportedAlgorithmError.new("Unsupported algorithm: #{algorithm}"))
     end
   end
 
