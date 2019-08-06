@@ -3,7 +3,7 @@ require "../../spec_helper"
 describe "exp claim" do
   context "exp is in the future" do
     it "token is accepted" do
-      exp = Time.now.to_unix + 10
+      exp = Time.utc.to_unix + 10
       payload = {"exp" => exp}
       token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
       payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
@@ -13,7 +13,7 @@ describe "exp claim" do
 
   context "exp is in the past" do
     it "raises VerificationError" do
-      exp = Time.now.to_unix - 1
+      exp = Time.utc.to_unix - 1
       payload = {"exp" => exp}
       token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
       expect_raises(JWT::ExpiredSignatureError, "Signature is expired") do
