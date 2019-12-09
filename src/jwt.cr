@@ -16,6 +16,9 @@ module JWT
     RS256
     RS384
     RS512
+    ES256
+    ES384
+    ES512
   end
 
   def encode(payload, key : String, algorithm : Algorithm, **header_keys) : String
@@ -41,6 +44,12 @@ module JWT
         rsa = OpenSSL::PKey::RSA.new(key)
         digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
         if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
+          raise VerificationError.new("Signature verification failed")
+        end
+      when Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
+        dsa = OpenSSL::PKey::EC.new(key)
+        digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).digest
+        if !dsa.ec_verify(digest, Base64.decode_string(encoded_signature))
           raise VerificationError.new("Signature verification failed")
         end
       else
@@ -104,7 +113,14 @@ module JWT
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
     when Algorithm::RS512
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
-    else raise(UnsupportedAlgorithmError.new("Unsupported algorithm: #{algorithm}"))
+    when Algorithm::ES256
+      OpenSSL::PKey::EC.new(key).ec_sign(OpenSSL::Digest.new("sha256").update(data).digest)
+    when Algorithm::ES384
+      OpenSSL::PKey::EC.new(key).ec_sign(OpenSSL::Digest.new("sha384").update(data).digest)
+    when Algorithm::ES512
+      OpenSSL::PKey::EC.new(key).ec_sign(OpenSSL::Digest.new("sha512").update(data).digest)
+    else
+      raise(UnsupportedAlgorithmError.new("Unsupported algorithm: #{algorithm}"))
     end
   end
 
