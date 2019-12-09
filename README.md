@@ -54,6 +54,7 @@ payload, header = JWT.decode(token, verify: false, validate: false)
 * [x] none
 * [x] HMAC (HS256, HS384, HS512)
 * [x] RSA (RS256, RS384, RS512)
+* [x] ECDSA (ES256, ES384, ES512)
 
 ## Supported reserved claim names
 JSON Web Token defines some reserved claim names and how they should be used.
