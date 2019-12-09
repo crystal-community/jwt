@@ -25,7 +25,7 @@ describe JWT do
                "FLscCAkdAP9lDgeDGwIDAQAB\n" +
                "-----END PUBLIC KEY-----\n"
 
-  wrong_key = OpenSSL::RSA.new(1024).to_pem
+  wrong_key = OpenSSL::PKey::RSA.new(1024).to_pem
   payload = {"foo" => "bar"}
 
   algorithms = {

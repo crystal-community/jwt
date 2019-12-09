@@ -38,7 +38,7 @@ module JWT
       # public key verification for RSA and ECDSA algorithms
       case algorithm
       when Algorithm::RS256, Algorithm::RS384, Algorithm::RS512
-        rsa = OpenSSL::RSA.new(key)
+        rsa = OpenSSL::PKey::RSA.new(key)
         digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
         if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
           raise VerificationError.new("Signature verification failed")
@@ -99,11 +99,11 @@ module JWT
     when Algorithm::HS512
       OpenSSL::HMAC.digest(:sha512, key, data)
     when Algorithm::RS256
-      OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha256"), data)
+      OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha256"), data)
     when Algorithm::RS384
-      OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
+      OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
     when Algorithm::RS512
-      OpenSSL::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
+      OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
     else raise(UnsupportedAlgorithmError.new("Unsupported algorithm: #{algorithm}"))
     end
   end

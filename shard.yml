@@ -1,5 +1,5 @@
 name: jwt
-version: 1.1.2
+version: 1.2.0
 
 authors:
   - Potapov Sergey <blake131313@gmail.com>
@@ -7,5 +7,6 @@ authors:
 dependencies:
   openssl_ext:
     github: stakach/openssl_ext
+    version: ~> 1.1
 
 license: MIT
