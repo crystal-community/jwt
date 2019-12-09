@@ -118,6 +118,8 @@ module JWT
     when Algorithm::ES384
       OpenSSL::PKey::EC.new(key).ec_sign(OpenSSL::Digest.new("sha384").update(data).digest)
     when Algorithm::ES512
+      # https://tools.ietf.org/html/rfc7518#section-3.4
+      # NOTE:: key size 521 for ES512
       OpenSSL::PKey::EC.new(key).ec_sign(OpenSSL::Digest.new("sha512").update(data).digest)
     else
       raise(UnsupportedAlgorithmError.new("Unsupported algorithm: #{algorithm}"))
