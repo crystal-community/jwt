@@ -36,7 +36,7 @@ describe JWT do
       "r8wUDIQIjFY3yId6nm7UoILcWV2DfH9zG2ZlaRuivg==\n" +
       "-----END EC PRIVATE KEY-----\n",
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJmb28iOiJiYXIifQ.AeXp0TWi_GK76s0Skjltw5a03EjmwndrBCGld4aOATastK7WAymbHIfXSJW6G5YhHYQ0N8unnWKQtr1SGUsAntiIARbP_dEaYvdmZu_5ypZ_fhxCymRYQ0hIxRNVclxdEGO9P6ckBRXtGfyCEGyBr3Czn6fogCrfRe0epUvyNRWUvuNH",
-    }
+    },
   }
 
   describe "ES* ASN1 conversion" do
@@ -54,7 +54,7 @@ describe JWT do
           239, 173, 212, 233, 140, 254, 31, 192, 101, 142, 143, 90, 177, 123,
           35, 228, 199, 37, 238, 150, 195, 2, 33, 0, 216, 81, 133, 104, 175,
           149, 90, 242, 228, 134, 82, 74, 231, 227, 89, 84, 173, 31, 96, 11, 82,
-          226, 194, 118, 53, 92, 245, 196, 11, 240, 131, 176
+          226, 194, 118, 53, 92, 245, 196, 11, 240, 131, 176,
         ]
       )
     end
