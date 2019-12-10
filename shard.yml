@@ -3,10 +3,15 @@ version: 1.2.0
 
 authors:
   - Potapov Sergey <blake131313@gmail.com>
+  - Stephen von Takach <steve@vontaka.ch>
 
 dependencies:
   openssl_ext:
     github: stakach/openssl_ext
-    version: ~> 1.1
+    version: ~> 1.2
+
+  bindata:
+    github: spider-gazelle/bindata
+    version: ~> 1.2
 
 license: MIT

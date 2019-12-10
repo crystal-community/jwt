@@ -12,7 +12,7 @@ describe JWT do
       "AwEHoUQDQgAEUeAfjUi57m5PZ7UEiaBLUzex/Jsq0l+dC5XixCUe01qqZJ3vFe7e\n" +
       "zVdalVZaibmLJQ2VUgPRTrlT2yv462U6xg==\n" +
       "-----END EC PRIVATE KEY-----\n",
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJmb28iOiJiYXIifQ.MEUCIQC-pZ8sLcbWCJ1HPuwQTdJgUH6QsoGRuWWU3EbhilcyQwIgL7VE9pIhYhCMzIw2gJWQsW7dS6g1iDGAupk6wPecAvs",
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJmb28iOiJiYXIifQ.FG1b5ByP6eIoXsXvrdTpjP4fwGWOj1qxeyPkxyXulsPYUYVor5Va8uSGUkrn41lUrR9gC1LiwnY1XPXEC_CDsA",
     },
 
     JWT::Algorithm::ES384 => {
@@ -22,7 +22,7 @@ describe JWT do
       "bIZkFLnnOikYnfy4+C4ldfja4Q1Sol2nnsQFntbkK0LMDwuJfh1hF9qUDyUnWNcZ\n" +
       "Evgh9T/ee7vu8MwVeAfqVHhby7xlCnk=\n" +
       "-----END EC PRIVATE KEY-----\n",
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzM4NCJ9.eyJmb28iOiJiYXIifQ.MGYCMQC74uyfqBTV0Dqv6PItwrJpfXo-1zghUY0Zc0mRanHNb7KuLN14gy31QqIZSGw7b7MCMQC_M2ZjMwmls337zPJAKfG-_M0zTqs_2kXuc1qDgEgH-k_iScDgft50RYcABWn9Qcc",
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzM4NCJ9.eyJmb28iOiJiYXIifQ.Gpkkby0V5KBrpi09bQxgs2CDs-joh8RL1fmVhd-sAgUplJZS1-IwsFAh2-si7Mcf9RIp4OKA3QaMICYut3Or3ewj5rYuwOw4qhBUITYPveBgXhPknM_svg2Le44ZL1Zx",
     },
 
     # https://tools.ietf.org/html/rfc7518#section-3.4
@@ -35,14 +35,35 @@ describe JWT do
       "36XJ4ZqYMFyT4r6SFQCJ+0zfMTvZWiLZxSoPaUhd/amPe5NBM3qy2qdNBXjW8SW4\n" +
       "r8wUDIQIjFY3yId6nm7UoILcWV2DfH9zG2ZlaRuivg==\n" +
       "-----END EC PRIVATE KEY-----\n",
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJmb28iOiJiYXIifQ.MIGHAkEHNBnCBCQj6vbASvrQ_eDqfAZzi_6yXY4keA_HhVnR7rAU2C1cv06Smil55RcrzLJjUx2NDWabwnHz6UR5Q3g4fAJCAfPP43s8FHuAd2aaITOZFb-sZ-pEun8tl8jnFC2J4DJj-i0Y2EcE3m_O898T8EZfJDmZz_BJaOWGmPkUG4S_-LOX",
-    },
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzUxMiJ9.eyJmb28iOiJiYXIifQ.AeXp0TWi_GK76s0Skjltw5a03EjmwndrBCGld4aOATastK7WAymbHIfXSJW6G5YhHYQ0N8unnWKQtr1SGUsAntiIARbP_dEaYvdmZu_5ypZ_fhxCymRYQ0hIxRNVclxdEGO9P6ckBRXtGfyCEGyBr3Czn6fogCrfRe0epUvyNRWUvuNH",
+    }
   }
 
-  algorithms.each do |alg, (private_key, expected_token)|
-    public_key = OpenSSL::PKey::EC.new(private_key).public_key.to_pem
+  describe "ES* ASN1 conversion" do
+    it "raw to ASN1" do
+      key_raw, example = algorithms[JWT::Algorithm::ES256]
+      private_key = OpenSSL::PKey::EC.new(key_raw)
+      public_key = private_key.public_key
 
+      verify_data, _, encoded_signature = example.rpartition('.')
+      signature = Base64.decode(encoded_signature)
+
+      JWT.raw_to_asn1(signature, public_key).should eq(
+        Bytes[
+          48, 69, 2, 32, 20, 109, 91, 228, 28, 143, 233, 226, 40, 94, 197,
+          239, 173, 212, 233, 140, 254, 31, 192, 101, 142, 143, 90, 177, 123,
+          35, 228, 199, 37, 238, 150, 195, 2, 33, 0, 216, 81, 133, 104, 175,
+          149, 90, 242, 228, 134, 82, 74, 231, 227, 89, 84, 173, 31, 96, 11, 82,
+          226, 194, 118, 53, 92, 245, 196, 11, 240, 131, 176
+        ]
+      )
+    end
+  end
+
+  algorithms.each do |alg, (private_key, example_token)|
     describe "algorithm #{alg}" do
+      public_key = OpenSSL::PKey::EC.new(private_key).public_key.to_pem
+
       it "generates proper token, that can be decoded" do
         # encode and decode
         token = JWT.encode(payload, private_key, alg)
@@ -51,11 +72,11 @@ describe JWT do
         decoded_token[1].should eq({"typ" => "JWT", "alg" => alg.to_s})
 
         # Decode the example
-        decoded_token = JWT.decode(expected_token, public_key, alg)
+        decoded_token = JWT.decode(example_token, public_key, alg)
         decoded_token[0].should eq(payload)
         decoded_token[1].should eq({"typ" => "JWT", "alg" => alg.to_s})
 
-        decoded_token = JWT.decode(token, private_key, alg)
+        decoded_token = JWT.decode(example_token, private_key, alg)
         decoded_token[0].should eq(payload)
         decoded_token[1].should eq({"typ" => "JWT", "alg" => alg.to_s})
       end
