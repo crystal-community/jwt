@@ -1,7 +1,7 @@
 require "../src/jwt"
 
 # Create token that expires in 1 minute
-exp = Time.now.to_unix + 60
+exp = Time.utc.to_unix + 60
 payload = {"foo" => "bar", "exp" => exp}
 token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 
