@@ -80,10 +80,12 @@ module JWT
     end
 
     {payload, header}
-  rescue Base64::Error
-    raise DecodeError.new("Invalid Base64")
-  rescue JSON::ParseException
-    raise DecodeError.new("Invalid JSON")
+  rescue error : Base64::Error
+    raise DecodeError.new("Invalid Base64", error)
+  rescue error : JSON::ParseException
+    raise DecodeError.new("Invalid JSON", error)
+  rescue error : TypeCastError
+    raise DecodeError.new("Invalid JWT payload", error)
   end
 
   def encode_header(algorithm : Algorithm, **keys) : String
