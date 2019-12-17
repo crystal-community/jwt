@@ -69,14 +69,15 @@ module JWT
     header = JSON.parse(header_json).as_h
 
     payload_json = Base64.decode_string(encoded_payload)
-    payload = JSON.parse(payload_json).as_h
+    payload = JSON.parse(payload_json)
 
     if validate
-      validate_exp!(payload["exp"]) if payload["exp"]?
-      validate_nbf!(payload["nbf"]) if payload["nbf"]?
-      validate_aud!(payload, opts[:aud]?) if opts[:aud]?
-      validate_iss!(payload, opts[:iss]?) if opts[:iss]?
-      validate_sub!(payload, opts[:sub]?) if opts[:sub]?
+      check = payload.as_h
+      validate_exp!(check["exp"]) if check["exp"]?
+      validate_nbf!(check["nbf"]) if check["nbf"]?
+      validate_aud!(check, opts[:aud]?) if opts[:aud]?
+      validate_iss!(check, opts[:iss]?) if opts[:iss]?
+      validate_sub!(check, opts[:sub]?) if opts[:sub]?
     end
 
     {payload, header}
