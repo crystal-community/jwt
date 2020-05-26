@@ -137,7 +137,7 @@ module JWT
   end
 
   private def base64_encode(data)
-    Base64.urlsafe_encode(data).gsub /\=+/, ""
+    Base64.urlsafe_encode(data, false)
   end
 
   private def validate_exp!(exp)
