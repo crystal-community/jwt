@@ -174,7 +174,7 @@ module JWT
   private def validate_iss!(payload, iss)
     if !payload["iss"]?
       raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received nothing")
-    elsif Crypto::Subtle.constant_time_compare(iss.to_s, payload["iss"].to_s) == false
+    elsif !Crypto::Subtle.constant_time_compare(iss.to_s, payload["iss"].to_s)
       raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received #{payload["iss"].inspect}")
     end
   end
