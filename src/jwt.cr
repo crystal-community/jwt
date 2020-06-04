@@ -3,6 +3,7 @@ require "base64"
 require "bindata/asn1"
 require "openssl/hmac"
 require "openssl_ext"
+require "crypto/subtle"
 
 require "./jwt/*"
 
@@ -58,7 +59,7 @@ module JWT
         raise VerificationError.new("Signature verification failed") if !result
       else
         expected_encoded_signature = encoded_signature(algorithm, key, verify_data)
-        if encoded_signature != expected_encoded_signature
+        unless Crypto::Subtle.constant_time_compare(encoded_signature, expected_encoded_signature)
           raise VerificationError.new("Signature verification failed")
         end
       end
@@ -156,7 +157,7 @@ module JWT
     if !payload["aud"]?
       raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received nothing")
     elsif payload["aud"].as_s?
-      if aud != payload["aud"].as_s
+      unless Crypto::Subtle.constant_time_compare(aud.to_s, payload["aud"].as_s)
         raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received #{payload["aud"].inspect}")
       end
     elsif payload["aud"].as_a?
@@ -173,14 +174,14 @@ module JWT
   private def validate_iss!(payload, iss)
     if !payload["iss"]?
       raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received nothing")
-    elsif payload["iss"] != iss
+    elsif !Crypto::Subtle.constant_time_compare(iss.to_s, payload["iss"].to_s)
       raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received #{payload["iss"].inspect}")
     end
   end
 
   private def validate_sub!(payload, sub)
     if payload["sub"]?
-      if payload["sub"] != sub
+      unless Crypto::Subtle.constant_time_compare(sub.to_s, payload["sub"].to_s)
         raise InvalidSubjectError.new("Invalid subject (sub). Expected #{sub.inspect}, received #{payload["sub"].inspect}")
       end
     else
