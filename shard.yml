@@ -1,5 +1,5 @@
 name: jwt
-version: 1.4.1
+version: 1.4.2
 
 authors:
   - Potapov Sergey <blake131313@gmail.com>
@@ -12,6 +12,6 @@ dependencies:
 
   bindata:
     github: spider-gazelle/bindata
-    version: ~> 1.2
+    version: ~> 1.5
 
 license: MIT
