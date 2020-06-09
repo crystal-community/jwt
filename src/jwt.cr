@@ -50,7 +50,7 @@ module JWT
         end
       when Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
         dsa = OpenSSL::PKey::EC.new(key)
-        digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).digest
+        digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).final
         result = begin
           dsa.ec_verify(digest, raw_to_asn1(Base64.decode(encoded_signature), dsa))
         rescue e
@@ -123,15 +123,15 @@ module JWT
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
     when Algorithm::ES256
       pkey = OpenSSL::PKey::EC.new(key)
-      asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha256").update(data).digest), pkey)
+      asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha256").update(data).final), pkey)
     when Algorithm::ES384
       pkey = OpenSSL::PKey::EC.new(key)
-      asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha384").update(data).digest), pkey)
+      asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha384").update(data).final), pkey)
     when Algorithm::ES512
       # https://tools.ietf.org/html/rfc7518#section-3.4
       # NOTE:: key size 521 for ES512
       pkey = OpenSSL::PKey::EC.new(key)
-      asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha512").update(data).digest), pkey)
+      asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha512").update(data).final), pkey)
     else
       raise(UnsupportedAlgorithmError.new("Unsupported algorithm: #{algorithm}"))
     end
