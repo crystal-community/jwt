@@ -1,4 +1,6 @@
-# Crystal JWT [![Build Status](https://travis-ci.org/crystal-community/jwt.svg?branch=master)](https://travis-ci.org/crystal-community/jwt)
+# Crystal JWT
+
+[![CI](https://github.com/crystal-community/jwt/actions/workflows/ci.yml/badge.svg)](https://github.com/crystal-community/jwt/actions/workflows/ci.yml)
 
 An implementation of [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519) in Crystal programming language.
 
