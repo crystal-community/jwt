@@ -14,7 +14,7 @@ describe "iss claim" do
     context ":iss option is not passed" do
       it "accepts the token" do
         token = JWT.encode({"foo" => "bar"}, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
         payload.should eq({"foo" => "bar"})
       end
     end
@@ -25,7 +25,7 @@ describe "iss claim" do
       context "iss matches" do
         it "accepts token" do
           token = JWT.encode({"iss" => "TEJO"}, "key", JWT::Algorithm::HS256)
-          payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, iss: "TEJO")
+          payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256, iss: "TEJO")
           payload.should eq({"iss" => "TEJO"})
         end
       end
@@ -43,7 +43,7 @@ describe "iss claim" do
     context ":iss option is not passed" do
       it "accepts token" do
         token = JWT.encode({"iss" => "TEJO"}, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
         payload.should eq({"iss" => "TEJO"})
       end
     end

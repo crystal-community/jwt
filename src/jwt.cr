@@ -31,39 +31,14 @@ module JWT
     segments.join(".")
   end
 
-  def decode(token : String, key : String = "", algorithm : Algorithm = Algorithm::None, verify = true, validate = true, **opts) : Tuple
+  def decode(token : String, key : String = "", algorithm : Algorithm = Algorithm::None, verify = true, validate = true, **options) : Tuple
     verify_data, _, encoded_signature = token.rpartition('.')
 
     count = verify_data.count('.')
     if count != 1
       raise DecodeError.new("Invalid number of segments in the token. Expected 3 got #{count + 2}")
     end
-
-    if verify
-      # public key verification for RSA and ECDSA algorithms
-      case algorithm
-      when Algorithm::RS256, Algorithm::RS384, Algorithm::RS512
-        rsa = OpenSSL::PKey::RSA.new(key)
-        digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
-        if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
-          raise VerificationError.new("Signature verification failed")
-        end
-      when Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
-        dsa = OpenSSL::PKey::EC.new(key)
-        digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).final
-        result = begin
-          dsa.ec_verify(digest, raw_to_asn1(Base64.decode(encoded_signature), dsa))
-        rescue e
-          raise VerificationError.new("Signature verification failed", e)
-        end
-        raise VerificationError.new("Signature verification failed") if !result
-      else
-        expected_encoded_signature = encoded_signature(algorithm, key, verify_data)
-        unless Crypto::Subtle.constant_time_compare(encoded_signature, expected_encoded_signature)
-          raise VerificationError.new("Signature verification failed")
-        end
-      end
-    end
+    verify(key, algorithm, verify_data, encoded_signature) if verify
 
     encoded_header, encoded_payload = verify_data.split('.')
     header_json = Base64.decode_string(encoded_header)
@@ -71,15 +46,7 @@ module JWT
 
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json)
-
-    if validate
-      check = payload.as_h
-      validate_exp!(check["exp"]) if check["exp"]?
-      validate_nbf!(check["nbf"]) if check["nbf"]?
-      validate_aud!(check, opts[:aud]?) if opts[:aud]?
-      validate_iss!(check, opts[:iss]?) if opts[:iss]?
-      validate_sub!(check, opts[:sub]?) if opts[:sub]?
-    end
+    validate(payload, options) if validate
 
     {payload, header}
   rescue error : Base64::Error
@@ -88,6 +55,41 @@ module JWT
     raise DecodeError.new("Invalid JSON", error)
   rescue error : TypeCastError
     raise DecodeError.new("Invalid JWT payload", error)
+  end
+
+  # public key verification for RSA and ECDSA algorithms
+  private def verify(key, algorithm, verify_data, encoded_signature)
+    case algorithm
+    when Algorithm::RS256, Algorithm::RS384, Algorithm::RS512
+      rsa = OpenSSL::PKey::RSA.new(key)
+      digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
+      if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
+        raise VerificationError.new("Signature verification failed")
+      end
+    when Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
+      dsa = OpenSSL::PKey::EC.new(key)
+      digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).final
+      result = begin
+        dsa.ec_verify(digest, raw_to_asn1(Base64.decode(encoded_signature), dsa))
+      rescue e
+        raise VerificationError.new("Signature verification failed", e)
+      end
+      raise VerificationError.new("Signature verification failed") if !result
+    else
+      expected_encoded_signature = encoded_signature(algorithm, key, verify_data)
+      unless Crypto::Subtle.constant_time_compare(encoded_signature, expected_encoded_signature)
+        raise VerificationError.new("Signature verification failed")
+      end
+    end
+  end
+
+  private def validate(payload, opts)
+    check = payload.as_h
+    validate_exp!(check["exp"]) if check["exp"]?
+    validate_nbf!(check["nbf"]) if check["nbf"]?
+    validate_aud!(check, opts[:aud]?) if opts[:aud]?
+    validate_iss!(check, opts[:iss]?) if opts[:iss]?
+    validate_sub!(check, opts[:sub]?) if opts[:sub]?
   end
 
   def encode_header(algorithm : Algorithm, **keys) : String
@@ -106,6 +108,7 @@ module JWT
     base64_encode(signature)
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   def sign(algorithm : Algorithm, key : String, data : String)
     case algorithm
     when Algorithm::None then ""

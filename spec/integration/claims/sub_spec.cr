@@ -16,7 +16,7 @@ describe "sub claim" do
       it "accepts token" do
         payload = {"foo" => "bar"}
         token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
         payload.should eq({"foo" => "bar"})
       end
     end
@@ -38,7 +38,7 @@ describe "sub claim" do
         it "accepts the token" do
           payload = {"sub" => "Esperanto"}
           token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
-          payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, sub: "Esperanto")
+          payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256, sub: "Esperanto")
           payload.should eq({"sub" => "Esperanto"})
         end
       end
@@ -48,7 +48,7 @@ describe "sub claim" do
       it "accepts token" do
         payload = {"sub" => "Esperanto"}
         token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
         payload.should eq({"sub" => "Esperanto"})
       end
     end

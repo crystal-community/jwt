@@ -5,7 +5,7 @@ describe "aud claim" do
     context "aud options is not passed to .decode method" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar"}, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
         payload.should eq({"foo" => "bar"})
       end
     end
@@ -24,7 +24,7 @@ describe "aud claim" do
     context "aud is not passed to .decode" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => "sergey"}, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
         payload.should eq({"foo" => "bar", "aud" => "sergey"})
       end
     end
@@ -32,7 +32,7 @@ describe "aud claim" do
     context "aud matches" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => "sergey"}, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "sergey")
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "sergey")
         payload.should eq({"foo" => "bar", "aud" => "sergey"})
       end
     end
@@ -51,7 +51,7 @@ describe "aud claim" do
     context "aud is not passed to .decode" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => ["sergey", "julia"]}, "key", JWT::Algorithm::HS256)
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
         payload.should eq({"foo" => "bar", "aud" => ["sergey", "julia"]})
       end
     end
@@ -60,10 +60,10 @@ describe "aud claim" do
       it "accepts token" do
         token = JWT.encode({"foo" => "bar", "aud" => ["sergey", "julia"]}, "key", JWT::Algorithm::HS256)
 
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "julia")
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "julia")
         payload.should eq({"foo" => "bar", "aud" => ["sergey", "julia"]})
 
-        payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "sergey")
+        payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "sergey")
         payload.should eq({"foo" => "bar", "aud" => ["sergey", "julia"]})
       end
     end

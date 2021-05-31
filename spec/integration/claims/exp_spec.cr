@@ -6,7 +6,7 @@ describe "exp claim" do
       exp = Time.utc.to_unix + 10
       payload = {"exp" => exp}
       token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
-      payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+      payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
       payload.should eq({"exp" => exp})
     end
   end

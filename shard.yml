@@ -15,4 +15,8 @@ dependencies:
     github: spider-gazelle/bindata
     version: ~> 1.8
 
+development_dependencies:
+  ameba:
+    github: veelenga/ameba
+
 license: MIT

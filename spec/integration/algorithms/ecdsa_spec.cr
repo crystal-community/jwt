@@ -45,7 +45,7 @@ describe JWT do
       private_key = OpenSSL::PKey::EC.new(key_raw)
       public_key = private_key.public_key
 
-      verify_data, _, encoded_signature = example.rpartition('.')
+      _verify_data, _, encoded_signature = example.rpartition('.')
       signature = Base64.decode(encoded_signature)
 
       JWT.raw_to_asn1(signature, public_key).should eq(

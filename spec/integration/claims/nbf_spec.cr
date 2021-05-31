@@ -17,7 +17,7 @@ describe "nbf claim" do
       nbf = Time.utc.to_unix
       payload = {"nbf" => nbf}
       token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
-      payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+      payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
       payload.should eq({"nbf" => nbf})
     end
   end
@@ -27,7 +27,7 @@ describe "nbf claim" do
       nbf = Time.utc.to_unix - 1
       payload = {"nbf" => nbf}
       token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
-      payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256)
+      payload, _header = JWT.decode(token, "key", JWT::Algorithm::HS256)
       payload.should eq({"nbf" => nbf})
     end
   end
