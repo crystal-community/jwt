@@ -60,13 +60,13 @@ module JWT
   # public key verification for RSA and ECDSA algorithms
   private def verify(key, algorithm, verify_data, encoded_signature)
     case algorithm
-    when Algorithm::RS256, Algorithm::RS384, Algorithm::RS512
+    in Algorithm::RS256, Algorithm::RS384, Algorithm::RS512
       rsa = OpenSSL::PKey::RSA.new(key)
       digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
       if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
         raise VerificationError.new("Signature verification failed")
       end
-    when Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
+    in Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
       dsa = OpenSSL::PKey::EC.new(key)
       digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).final
       result = begin
@@ -75,7 +75,7 @@ module JWT
         raise VerificationError.new("Signature verification failed", e)
       end
       raise VerificationError.new("Signature verification failed") if !result
-    else
+    in Algorithm::HS256, Algorithm::HS384, Algorithm::HS512, Algorithm::None
       expected_encoded_signature = encoded_signature(algorithm, key, verify_data)
       unless Crypto::Subtle.constant_time_compare(encoded_signature, expected_encoded_signature)
         raise VerificationError.new("Signature verification failed")
@@ -111,32 +111,30 @@ module JWT
   # ameba:disable Metrics/CyclomaticComplexity
   def sign(algorithm : Algorithm, key : String, data : String)
     case algorithm
-    when Algorithm::None then ""
-    when Algorithm::HS256
+    in Algorithm::None then ""
+    in Algorithm::HS256
       OpenSSL::HMAC.digest(:sha256, key, data)
-    when Algorithm::HS384
+    in Algorithm::HS384
       OpenSSL::HMAC.digest(:sha384, key, data)
-    when Algorithm::HS512
+    in Algorithm::HS512
       OpenSSL::HMAC.digest(:sha512, key, data)
-    when Algorithm::RS256
+    in Algorithm::RS256
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha256"), data)
-    when Algorithm::RS384
+    in Algorithm::RS384
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
-    when Algorithm::RS512
+    in Algorithm::RS512
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
-    when Algorithm::ES256
+    in Algorithm::ES256
       pkey = OpenSSL::PKey::EC.new(key)
       asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha256").update(data).final), pkey)
-    when Algorithm::ES384
+    in Algorithm::ES384
       pkey = OpenSSL::PKey::EC.new(key)
       asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha384").update(data).final), pkey)
-    when Algorithm::ES512
+    in Algorithm::ES512
       # https://tools.ietf.org/html/rfc7518#section-3.4
       # NOTE:: key size 521 for ES512
       pkey = OpenSSL::PKey::EC.new(key)
       asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha512").update(data).final), pkey)
-    else
-      raise(UnsupportedAlgorithmError.new("Unsupported algorithm: #{algorithm}"))
     end
   end
 
