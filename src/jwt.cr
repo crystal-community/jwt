@@ -34,25 +34,14 @@ module JWT
   def decode(token : String, key : String = "", algorithm : Algorithm = Algorithm::None, verify = true, validate = true, **options) : Tuple
     verify_data, _, encoded_signature = token.rpartition('.')
 
-    count = verify_data.count('.')
-    if count != 1
-      raise DecodeError.new("Invalid number of segments in the token. Expected 3 got #{count + 2}")
-    end
+    check_verify_data(verify_data)
+
     verify(key, algorithm, verify_data, encoded_signature) if verify
 
-    encoded_header, encoded_payload = verify_data.split('.')
-    header_json = Base64.decode_string(encoded_header)
-    header = JSON.parse(header_json).as_h
-
-    payload_json = Base64.decode_string(encoded_payload)
-    payload = JSON.parse(payload_json)
+    header, payload = decode_verify_data(verify_data)
     validate(payload, options) if validate
 
     {payload, header}
-  rescue error : Base64::Error
-    raise DecodeError.new("Invalid Base64", error)
-  rescue error : JSON::ParseException
-    raise DecodeError.new("Invalid JSON", error)
   rescue error : TypeCastError
     raise DecodeError.new("Invalid JWT payload", error)
   end
@@ -60,10 +49,34 @@ module JWT
   def decode(token : String, algorithm : Algorithm? = nil, verify = true, validate = true, **options, &block) : Tuple
     verify_data, _, encoded_signature = token.rpartition('.')
 
+    check_verify_data(verify_data)
+    header, payload = decode_verify_data(verify_data)
+
+    if algorithm.nil?
+      begin
+        algorithm = Algorithm.parse header["alg"].as_s
+      rescue error : ArgumentError | KeyError
+        raise DecodeError.new("Invalid alg in JWT header", error)
+      end
+    end
+    key = yield header, payload
+
+    verify(key.not_nil!, algorithm.not_nil!, verify_data, encoded_signature) if verify
+    validate(payload, options) if validate
+
+    {payload, header}
+  rescue error : TypeCastError
+    raise DecodeError.new("Invalid JWT payload", error)
+  end
+
+  private def check_verify_data(verify_data)
     count = verify_data.count('.')
     if count != 1
       raise DecodeError.new("Invalid number of segments in the token. Expected 3 got #{count + 2}")
     end
+  end
+
+  private def decode_verify_data(verify_data)
     encoded_header, encoded_payload = verify_data.split('.')
     header_json = Base64.decode_string(encoded_header)
     header = JSON.parse(header_json).as_h
@@ -71,23 +84,13 @@ module JWT
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json)
 
-    algorithm = Algorithm.parse header["alg"].as_s if algorithm.nil?
-
-    key = yield header, payload
-
-    verify(key, algorithm.not_nil!, verify_data, encoded_signature) if verify
-
-    validate(payload, options) if validate
-
-    {payload, header}
+    { header, payload }
   rescue error : Base64::Error
     raise DecodeError.new("Invalid Base64", error)
   rescue error : JSON::ParseException
     raise DecodeError.new("Invalid JSON", error)
   rescue error : TypeCastError
-    raise DecodeError.new("Invalid JWT payload", error)
-  rescue error : ArgumentError | KeyError
-    raise DecodeError.new("Invalid alg in JWT header", error)
+    raise DecodeError.new("Invalid JWT header", error)
   end
 
   # public key verification for RSA and ECDSA algorithms
