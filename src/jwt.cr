@@ -57,7 +57,7 @@ module JWT
     raise DecodeError.new("Invalid JWT payload", error)
   end
 
-  def decode(token : String, key : String = "", algorithm : Algorithm? = nil, verify = true, validate = true, **options, &block) : Tuple
+  def decode(token : String, algorithm : Algorithm? = nil, verify = true, validate = true, **options, &block) : Tuple
     verify_data, _, encoded_signature = token.rpartition('.')
 
     count = verify_data.count('.')
