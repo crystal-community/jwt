@@ -20,7 +20,7 @@ describe JWT do
 
     it "decodes and verifies JWT with dynamic key" do
       token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrMSI6InYxIiwiazIiOiJ2MiJ9.spzfy63YQSKdoM3av9HHvLtWzFjPd1hbch2g3T1-nu4"
-      payload, header = JWT.decode(token, algorithm: JWT::Algorithm::HS256) do |header, payload|
+      payload, header = JWT.decode(token, algorithm: JWT::Algorithm::HS256) do |_header, _payload|
         "SecretKey"
       end
       header.should eq({"typ" => "JWT", "alg" => "HS256"})
@@ -29,7 +29,7 @@ describe JWT do
 
     it "decodes and verifies JWT with dynamic key and auto algorithm" do
       token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrMSI6InYxIiwiazIiOiJ2MiJ9.spzfy63YQSKdoM3av9HHvLtWzFjPd1hbch2g3T1-nu4"
-      payload, header = JWT.decode(token) do |header, payload|
+      payload, header = JWT.decode(token) do |_header, _payload|
         "SecretKey"
       end
       header.should eq({"typ" => "JWT", "alg" => "HS256"})

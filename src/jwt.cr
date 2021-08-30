@@ -84,7 +84,7 @@ module JWT
     payload_json = Base64.decode_string(encoded_payload)
     payload = JSON.parse(payload_json)
 
-    { header, payload }
+    {header, payload}
   rescue error : Base64::Error
     raise DecodeError.new("Invalid Base64", error)
   rescue error : JSON::ParseException
