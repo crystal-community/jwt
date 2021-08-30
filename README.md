@@ -51,8 +51,8 @@ payload, header = JWT.decode(token, verify: false, validate: false)
 # Verification checks the signature
 # Validation is checking if the token has expired etc
 
-# You may also dynamically decide the key by passing a block to the decode function
-# algorithm is optionally, you can omit it to use algorithm defined in the header
+# You may dynamically decide the key by passing a block to the decode function
+# the algorithm is optional, you can omit it to use algorithm defined in the header
 payload, header = JWT.decode(token, JWT::Algorithm::HS256) do |header, payload|
   "the key"
 end
