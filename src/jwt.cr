@@ -144,7 +144,6 @@ module JWT
     base64_encode(signature)
   end
 
-  # ameba:disable Metrics/CyclomaticComplexity
   def sign(algorithm : Algorithm, key : String, data : String)
     case algorithm
     in Algorithm::None then ""
