@@ -1,3 +1,7 @@
 Lint/UselessAssign:
   Excluded:
     - examples/*
+
+Lint/DebugCalls:
+  Excluded:
+    - examples/*
