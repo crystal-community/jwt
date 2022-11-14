@@ -61,7 +61,7 @@ module JWT
     end
     key = yield header, payload
 
-    verify(key.not_nil!, algorithm.not_nil!, verify_data, encoded_signature) if verify
+    verify(key, algorithm, verify_data, encoded_signature) if verify
     validate(payload, options) if validate
 
     {payload, header}
