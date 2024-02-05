@@ -1,5 +1,5 @@
 name: jwt
-version: 1.6.0
+version: 1.6.1
 crystal: ">= 0.36.1"
 
 authors:
@@ -13,7 +13,7 @@ dependencies:
 
   bindata:
     github: spider-gazelle/bindata
-    version: ~> 1.8
+    version: ~> 2.0
 
 development_dependencies:
   ameba:
