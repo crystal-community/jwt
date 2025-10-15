@@ -19,4 +19,8 @@ development_dependencies:
   ameba:
     github: veelenga/ameba
 
+  webmock:
+    github: manastech/webmock.cr
+    branch: master
+
 license: MIT
