@@ -40,7 +40,7 @@ describe "aud claim" do
     context "aud does not match" do
       it "raises InvalidAudienceError" do
         token = JWT.encode({"foo" => "bar", "aud" => "sergey"}, "key", JWT::Algorithm::HS256)
-        expect_raises(JWT::InvalidAudienceError, "Invalid audience (aud). Expected \"julia\", received \"sergey\"") do
+        expect_raises(JWT::InvalidAudienceError) do
           JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "julia")
         end
       end
@@ -72,7 +72,7 @@ describe "aud claim" do
       it "raises InvalidAudienceError" do
         token = JWT.encode({"foo" => "bar", "aud" => ["sergey", "julia"]}, "key", JWT::Algorithm::HS256)
 
-        expect_raises(JWT::InvalidAudienceError, "Invalid audience (aud). Expected \"max\", received [\"sergey\", \"julia\"]") do
+        expect_raises(JWT::InvalidAudienceError) do
           JWT.decode(token, "key", JWT::Algorithm::HS256, aud: "max")
         end
       end

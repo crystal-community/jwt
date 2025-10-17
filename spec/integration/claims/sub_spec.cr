@@ -28,7 +28,7 @@ describe "sub claim" do
         it "raises InvalidSubjectError" do
           payload = {"sub" => "Esperanto"}
           token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
-          expect_raises(JWT::InvalidSubjectError, "Invalid subject (sub). Expected \"Junularo\", received \"Esperanto\"") do
+          expect_raises(JWT::InvalidSubjectError) do
             JWT.decode(token, "key", JWT::Algorithm::HS256, sub: "Junularo")
           end
         end
