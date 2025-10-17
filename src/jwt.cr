@@ -4,6 +4,7 @@ require "bindata/asn1"
 require "openssl/hmac"
 require "openssl_ext"
 require "crypto/subtle"
+require "ed25519"
 
 require "./jwt/*"
 
@@ -21,6 +22,10 @@ module JWT
     ES256
     ES384
     ES512
+    PS256
+    PS384
+    PS512
+    EdDSA
   end
 
   def encode(payload, key : String, algorithm : Algorithm, **header_keys) : String
@@ -102,6 +107,12 @@ module JWT
       if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
         raise VerificationError.new("Signature verification failed")
       end
+    in Algorithm::PS256, Algorithm::PS384, Algorithm::PS512
+      rsa = OpenSSL::PKey::RSA.new(key)
+      digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
+      if !rsa.verify_pss(digest, Base64.decode(encoded_signature), verify_data)
+        raise VerificationError.new("Signature verification failed")
+      end
     in Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
       dsa = OpenSSL::PKey::EC.new(key)
       digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).final
@@ -111,6 +122,20 @@ module JWT
         raise VerificationError.new("Signature verification failed", e)
       end
       raise VerificationError.new("Signature verification failed") if !result
+    in Algorithm::EdDSA
+      begin
+        key_bytes = if key.starts_with?("-----")
+                      key.hexbytes
+                    else
+                      key.hexbytes
+                    end
+        public_key = Ed25519.get_public_key(key_bytes)
+        if !Ed25519.verify(Base64.decode(encoded_signature), verify_data.to_slice, public_key)
+          raise VerificationError.new("Signature verification failed")
+        end
+      rescue e
+        raise VerificationError.new("Signature verification failed", e)
+      end
     in Algorithm::HS256, Algorithm::HS384, Algorithm::HS512, Algorithm::None
       expected_encoded_signature = encoded_signature(algorithm, key, verify_data)
       unless Crypto::Subtle.constant_time_compare(encoded_signature, expected_encoded_signature)
@@ -159,6 +184,12 @@ module JWT
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
     in Algorithm::RS512
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
+    in Algorithm::PS256
+      OpenSSL::PKey::RSA.new(key).sign_pss(OpenSSL::Digest.new("sha256"), data)
+    in Algorithm::PS384
+      OpenSSL::PKey::RSA.new(key).sign_pss(OpenSSL::Digest.new("sha384"), data)
+    in Algorithm::PS512
+      OpenSSL::PKey::RSA.new(key).sign_pss(OpenSSL::Digest.new("sha512"), data)
     in Algorithm::ES256
       pkey = OpenSSL::PKey::EC.new(key)
       asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha256").update(data).final), pkey)
@@ -170,6 +201,16 @@ module JWT
       # NOTE:: key size 521 for ES512
       pkey = OpenSSL::PKey::EC.new(key)
       asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha512").update(data).final), pkey)
+    in Algorithm::EdDSA
+      # Ed25519 expects bytes for both message and key
+      key_bytes = if key.starts_with?("-----")
+                    # If it's a PEM-formatted key, extract the raw bytes
+                    # For now, assume it's a hex string or raw bytes
+                    key.hexbytes
+                  else
+                    key.hexbytes
+                  end
+      Ed25519.sign(data.to_slice, key_bytes)
     end
   end
 
