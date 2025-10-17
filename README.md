@@ -64,7 +64,7 @@ end
 * [x] HMAC (HS256, HS384, HS512)
 * [x] RSA (RS256, RS384, RS512)
 * [x] RSA-PSS (PS256, PS384, PS512)
-* [x] ECDSA (ES256, ES384, ES512)
+* [x] ECDSA (ES256, ES256K, ES384, ES512)
 * [x] Edwards-curve Digital Signature Algorithm (EdDSA - crv: Ed25519)
 
 ## Supported reserved claim names

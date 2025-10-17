@@ -22,6 +22,7 @@ module JWT
     ES256
     ES384
     ES512
+    ES256K
     PS256
     PS384
     PS512
@@ -113,9 +114,11 @@ module JWT
       if !rsa.verify_pss(digest, Base64.decode(encoded_signature), verify_data)
         raise VerificationError.new("Signature verification failed")
       end
-    in Algorithm::ES256, Algorithm::ES384, Algorithm::ES512
+    in Algorithm::ES256, Algorithm::ES384, Algorithm::ES512, Algorithm::ES256K
       dsa = OpenSSL::PKey::EC.new(key)
-      digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}").update(verify_data).final
+      # ES256K uses SHA-256 like ES256, but with secp256k1 curve
+      digest_algo = algorithm == Algorithm::ES256K ? "sha256" : "sha#{algorithm.to_s[2..-1]}"
+      digest = OpenSSL::Digest.new(digest_algo).update(verify_data).final
       result = begin
         dsa.ec_verify(digest, raw_to_asn1(Base64.decode(encoded_signature), dsa))
       rescue e
@@ -201,6 +204,11 @@ module JWT
       # NOTE:: key size 521 for ES512
       pkey = OpenSSL::PKey::EC.new(key)
       asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha512").update(data).final), pkey)
+    in Algorithm::ES256K
+      # https://tools.ietf.org/html/rfc8812
+      # ES256K uses secp256k1 curve with SHA-256
+      pkey = OpenSSL::PKey::EC.new(key)
+      asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha256").update(data).final), pkey)
     in Algorithm::EdDSA
       # Ed25519 expects bytes for both message and key
       key_bytes = if key.starts_with?("-----")
