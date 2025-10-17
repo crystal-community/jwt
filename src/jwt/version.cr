@@ -1,3 +1,5 @@
 module JWT
-  VERSION = "0.4.0"
+  {% begin %}
+    VERSION = {{ `shards version "#{__DIR__}"`.chomp.stringify.downcase }}
+  {% end %}
 end
