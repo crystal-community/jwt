@@ -48,6 +48,13 @@ describe "typ header" do
           header["typ"].should eq("JWT")
         end
 
+        it "accepts lowercase token" do
+          token = JWT.encode({"foo" => "bar"}, "key", JWT::Algorithm::HS256, typ: "jwt")
+          payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, typ: "JWT")
+          payload.should eq({"foo" => "bar"})
+          header["typ"].should eq("jwt")
+        end
+
         it "accepts token with custom typ" do
           token = JWT.encode({"foo" => "bar"}, "key", JWT::Algorithm::HS256, typ: "at+jwt")
           payload, header = JWT.decode(token, "key", JWT::Algorithm::HS256, typ: "at+jwt")

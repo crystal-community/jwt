@@ -77,6 +77,7 @@ JSON Web Token defines some reserved claim names and how they should be used.
 * ['jti' (JWT ID) Claim](#jwt-id-jti)
 * ['iat' (Issued At) Claim](#issued-at-iat)
 * ['sub' (Subject) Claim](#subject-sub)
+* ['typ' (Type) Claim](#type-typ)
 
 ### Expiration Time (exp)
 
@@ -175,6 +176,20 @@ token = JWT.encode(payload, "key", JWT::Algorithm::HS256)
 
 # Raises JWT::InvalidSubjectError, because "sub" claim does not match
 JWT.decode(token, "key", JWT::Algorithm::HS256, sub: "Junularo")
+```
+
+### Type (typ)
+
+From [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519#section-5.1):
+> This is intended for use by the JWT application when values that are not JWTs could also be present in an application data structure that can contain a JWT object; the application can use this value to disambiguate among the different kinds of objects that might be present.. While media type names are not case sensitive, it is RECOMMENDED that "JWT" always be spelled using uppercase characters for compatibility with legacy implementations. Use of this Header Parameter is OPTIONAL.
+
+Example:
+```crystal
+require "secure_random"
+
+jti = SecureRandom.urlsafe_base64
+payload = { "foo" => "bar", "jti" => jti }
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
 ```
 
 ### JWT ID (jti)

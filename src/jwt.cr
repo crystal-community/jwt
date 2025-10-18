@@ -282,7 +282,7 @@ module JWT
     header_typ = header["typ"]?
     if !header_typ
       raise InvalidTypError.new("Invalid type (typ). Expected #{typ.inspect}, received nothing")
-    elsif !Crypto::Subtle.constant_time_compare(typ.to_s, header_typ.to_s)
+    elsif !Crypto::Subtle.constant_time_compare(typ.to_s.downcase, header_typ.to_s.downcase)
       raise InvalidTypError.new("Invalid type (typ). Expected #{typ.inspect}, received #{header_typ.raw.inspect}")
     end
   end
