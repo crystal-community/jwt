@@ -241,16 +241,16 @@ module JWT
   end
 
   private def validate_aud!(payload, aud)
-    if !payload["aud"]?
+    payload_aud = payload["aud"]?
+    if !payload_aud
       raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received nothing")
-    elsif payload["aud"].as_s?
-      unless Crypto::Subtle.constant_time_compare(aud.to_s, payload["aud"].as_s)
-        raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received #{payload["aud"].inspect}")
+    elsif payload_aud.as_s?
+      unless Crypto::Subtle.constant_time_compare(aud.to_s, payload_aud.as_s)
+        raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received #{payload_aud.raw.inspect}")
       end
-    elsif payload["aud"].as_a?
-      auds = payload["aud"].as_a
+    elsif auds = payload_aud.as_a?
       if !auds.includes?(aud)
-        msg = "Invalid audience (aud). Expected #{aud.inspect}, received #{payload["aud"].inspect}"
+        msg = "Invalid audience (aud). Expected #{aud.inspect}, received #{auds.inspect}"
         raise InvalidAudienceError.new(msg)
       end
     else
@@ -259,17 +259,19 @@ module JWT
   end
 
   private def validate_iss!(payload, iss)
-    if !payload["iss"]?
+    payload_iss = payload["iss"]?
+    if !payload_iss
       raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received nothing")
-    elsif !Crypto::Subtle.constant_time_compare(iss.to_s, payload["iss"].to_s)
-      raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received #{payload["iss"].inspect}")
+    elsif !Crypto::Subtle.constant_time_compare(iss.to_s, payload_iss.to_s)
+      raise InvalidIssuerError.new("Invalid issuer (iss). Expected #{iss.inspect}, received #{payload_iss.raw.inspect}")
     end
   end
 
   private def validate_sub!(payload, sub)
-    if payload["sub"]?
-      unless Crypto::Subtle.constant_time_compare(sub.to_s, payload["sub"].to_s)
-        raise InvalidSubjectError.new("Invalid subject (sub). Expected #{sub.inspect}, received #{payload["sub"].inspect}")
+    payload_sub = payload["sub"]?
+    if payload_sub
+      unless Crypto::Subtle.constant_time_compare(sub.to_s, payload_sub.to_s)
+        raise InvalidSubjectError.new("Invalid subject (sub). Expected #{sub.inspect}, received #{payload_sub.raw.inspect}")
       end
     else
       raise InvalidSubjectError.new("Invalid subject (sub). Expected #{sub.inspect}, received nothing")
@@ -281,7 +283,7 @@ module JWT
     if !header_typ
       raise InvalidTypError.new("Invalid type (typ). Expected #{typ.inspect}, received nothing")
     elsif !Crypto::Subtle.constant_time_compare(typ.to_s, header_typ.to_s)
-      raise InvalidTypError.new("Invalid type (typ). Expected #{typ.inspect}, received #{header_typ.inspect}")
+      raise InvalidTypError.new("Invalid type (typ). Expected #{typ.inspect}, received #{header_typ.raw.inspect}")
     end
   end
 
