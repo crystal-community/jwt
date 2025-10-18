@@ -45,6 +45,7 @@ module JWT
     verify(key, algorithm, verify_data, encoded_signature) if verify
 
     header, payload = decode_verify_data(verify_data)
+    validate_typ!(header, options[:typ]?) if options[:typ]?
     validate(payload, options) if validate
 
     {payload, header}
@@ -68,6 +69,7 @@ module JWT
     key = yield header, payload
 
     verify(key, algorithm, verify_data, encoded_signature) if verify
+    validate_typ!(header, options[:typ]?) if options[:typ]?
     validate(payload, options) if validate
 
     {payload, header}
@@ -271,6 +273,15 @@ module JWT
       end
     else
       raise InvalidSubjectError.new("Invalid subject (sub). Expected #{sub.inspect}, received nothing")
+    end
+  end
+
+  private def validate_typ!(header, typ)
+    header_typ = header["typ"]?
+    if !header_typ
+      raise InvalidTypError.new("Invalid type (typ). Expected #{typ.inspect}, received nothing")
+    elsif !Crypto::Subtle.constant_time_compare(typ.to_s, header_typ.to_s)
+      raise InvalidTypError.new("Invalid type (typ). Expected #{typ.inspect}, received #{header_typ.inspect}")
     end
   end
 

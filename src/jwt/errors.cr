@@ -28,4 +28,7 @@ module JWT
 
   # Is raised when 'jti' claim is invalid.
   class InvalidJtiError < DecodeError; end
+
+  # Is raised when 'typ' header does not match.
+  class InvalidTypError < DecodeError; end
 end
