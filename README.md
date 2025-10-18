@@ -185,11 +185,9 @@ From [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519#section-5.1):
 
 Example:
 ```crystal
-require "secure_random"
-
-jti = SecureRandom.urlsafe_base64
-payload = { "foo" => "bar", "jti" => jti }
-token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
+# NOTE typ defaults to "JWT" so setting it manually to this value is unnecessary
+payload = { "foo" => "bar" }
+token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256, typ: "JWT")
 ```
 
 ### JWT ID (jti)
