@@ -248,7 +248,7 @@ module JWT
       unless Crypto::Subtle.constant_time_compare(aud.to_s, payload_aud.as_s)
         raise InvalidAudienceError.new("Invalid audience (aud). Expected #{aud.inspect}, received #{payload_aud.raw.inspect}")
       end
-    elsif auds = payload_aud.as_a?
+    elsif auds = payload_aud.as_a?.try(&.map(&.raw))
       if !auds.includes?(aud)
         msg = "Invalid audience (aud). Expected #{aud.inspect}, received #{auds.inspect}"
         raise InvalidAudienceError.new(msg)
