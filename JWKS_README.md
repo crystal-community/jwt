@@ -53,6 +53,7 @@ dependencies:
 
 ```crystal
 require "jwt"
+require "jwt/jwks"
 
 # Initialize JWKS validator
 jwks = JWT::JWKS.new
@@ -208,6 +209,7 @@ payload = jwks.validate(
 
 ```crystal
 require "jwt"
+require "jwt/jwks"
 
 class EntraTokenValidator
   def initialize(@tenant_id : String, @client_id : String)
@@ -563,27 +565,3 @@ When contributing security-related features:
 ## License
 
 MIT License - see LICENSE file for details
-
-## Version History
-
-### Latest (v1.7.0+)
-- ✅ Full EC key support (ES256/384/512/256K)
-- ✅ EdDSA/Ed25519 support
-- ✅ Algorithm allow-list with JWK validation
-- ✅ HTTPS enforcement
-- ✅ HTTP caching (ETag, Cache-Control)
-- ✅ Key rotation support (cache refresh on missing kid)
-- ✅ Clock skew tolerance (configurable leeway)
-- ✅ Kid-less and x5t token support
-- ✅ typ validation (JWT, at+jwt)
-- ✅ Strict issuer validation
-- ✅ Enhanced scope extraction (Entra space-delimited fix)
-- ✅ Enhanced role extraction (Keycloak, Okta support)
-- ✅ Network hardening (timeouts, bounded iteration)
-- ✅ 192 comprehensive tests
-
-### v1.6.0
-- Initial JWKS implementation
-- RSA support (RS256/384/512)
-- Basic caching
-- Entra ID support
