@@ -1,6 +1,5 @@
 name: jwt
 version: 1.7.0
-crystal: ">= 0.36.1"
 
 authors:
   - Potapov Sergey <blake131313@gmail.com>
@@ -13,7 +12,7 @@ dependencies:
 
   bindata:
     github: spider-gazelle/bindata
-    version: ~> 2.0
+    version: ~> 2.1
 
   ed25519:
     github: spider-gazelle/ed25519
