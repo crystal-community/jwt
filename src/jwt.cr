@@ -24,9 +24,11 @@ module JWT
     ES384
     ES512
     ES256K
-    PS256
-    PS384
-    PS512
+    {% if compare_versions(LibCrypto::OPENSSL_VERSION, "3.0.0") >= 0 %}
+      PS256
+      PS384
+      PS512
+    {% end %}
     EdDSA
   end
 
@@ -102,6 +104,7 @@ module JWT
     raise DecodeError.new("Invalid JWT header", error)
   end
 
+  {% begin %}
   # public key verification for RSA and ECDSA algorithms
   private def verify(key, algorithm, verify_data, encoded_signature)
     case algorithm
@@ -111,12 +114,14 @@ module JWT
       if !rsa.verify(digest, Base64.decode_string(encoded_signature), verify_data)
         raise VerificationError.new("Signature verification failed")
       end
+    {% if compare_versions(LibCrypto::OPENSSL_VERSION, "3.0.0") >= 0 %}
     in Algorithm::PS256, Algorithm::PS384, Algorithm::PS512
       rsa = OpenSSL::PKey::RSA.new(key)
       digest = OpenSSL::Digest.new("sha#{algorithm.to_s[2..-1]}")
       if !rsa.verify_pss(digest, Base64.decode(encoded_signature), verify_data)
         raise VerificationError.new("Signature verification failed")
       end
+    {% end %}
     in Algorithm::ES256, Algorithm::ES384, Algorithm::ES512, Algorithm::ES256K
       dsa = OpenSSL::PKey::EC.new(key)
       # ES256K uses SHA-256 like ES256, but with secp256k1 curve
@@ -163,6 +168,7 @@ module JWT
       end
     end
   end
+  {% end %}
 
   private def validate(payload, opts)
     check = payload.as_h
@@ -189,6 +195,7 @@ module JWT
     base64_encode(signature)
   end
 
+  {% begin %}
   def sign(algorithm : Algorithm, key : String, data : String)
     case algorithm
     in Algorithm::None then ""
@@ -204,12 +211,14 @@ module JWT
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha384"), data)
     in Algorithm::RS512
       OpenSSL::PKey::RSA.new(key).sign(OpenSSL::Digest.new("sha512"), data)
+    {% if compare_versions(LibCrypto::OPENSSL_VERSION, "3.0.0") >= 0 %}
     in Algorithm::PS256
       OpenSSL::PKey::RSA.new(key).sign_pss(OpenSSL::Digest.new("sha256"), data)
     in Algorithm::PS384
       OpenSSL::PKey::RSA.new(key).sign_pss(OpenSSL::Digest.new("sha384"), data)
     in Algorithm::PS512
       OpenSSL::PKey::RSA.new(key).sign_pss(OpenSSL::Digest.new("sha512"), data)
+    {% end %}
     in Algorithm::ES256
       pkey = OpenSSL::PKey::EC.new(key)
       asn1_to_raw(pkey.ec_sign(OpenSSL::Digest.new("sha256").update(data).final), pkey)
@@ -238,6 +247,7 @@ module JWT
       Ed25519.sign(data.to_slice, key_bytes)
     end
   end
+  {% end %}
 
   private def base64_encode(data)
     Base64.urlsafe_encode(data, false)

@@ -5,12 +5,27 @@ on:
   schedule:
     - cron: "0 6 * * 1"
 jobs:
-  build:
+  coding_standards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+      - name: Install Dependencies
+        run: shards install
+      - name: Ameba
+        run: ./bin/ameba
+      - name: Format
+        run: crystal tool format --check
+  test:
     strategy:
       fail-fast: false
       matrix:
         experimental: [false]
-        os: [ubuntu-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
         crystal:
           - latest
         include:
@@ -19,16 +34,13 @@ jobs:
             crystal: nightly
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
-    container: crystallang/crystal:${{ matrix.crystal }}-alpine
     steps:
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: shards install --ignore-crystal-version
-    - name: Lint
-      run: ./bin/ameba
-    - name: Format
-      run: crystal tool format --check
-    - name: Run tests
-      run: crystal spec -v --error-trace
-      env:
-        http_proxy: http://51.38.71.101:8080
+      - uses: actions/checkout@v5
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
+      - name: Install dependencies
+        run: shards install --ignore-crystal-version --skip-postinstall --skip-executables
+      - name: Run tests
+        run: crystal spec -v --error-trace
