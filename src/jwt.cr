@@ -6,7 +6,8 @@ require "openssl_ext"
 require "crypto/subtle"
 require "ed25519"
 
-require "./jwt/*"
+require "./jwt/version"
+require "./jwt/errors"
 
 module JWT
   extend self
@@ -129,15 +130,29 @@ module JWT
       raise VerificationError.new("Signature verification failed") if !result
     in Algorithm::EdDSA
       begin
-        key_bytes = if key.starts_with?("-----")
-                      key.hexbytes
-                    else
-                      key.hexbytes
-                    end
-        public_key = Ed25519.get_public_key(key_bytes)
-        if !Ed25519.verify(Base64.decode(encoded_signature), verify_data.to_slice, public_key)
-          raise VerificationError.new("Signature verification failed")
+        key_bytes = key.hexbytes
+
+        # Handle both private key (legacy) and public key (JWKS) inputs
+        signature = Base64.decode(encoded_signature)
+        message = verify_data.to_slice
+
+        verified = false
+        if key_bytes.size == 32
+          # Try as private key first (derive public key and verify)
+          public_key = Ed25519.get_public_key(key_bytes)
+          verified = Ed25519.verify(signature, message, public_key)
+
+          # If verification failed, try using key_bytes directly as public key (JWKS)
+          unless verified
+            verified = Ed25519.verify(signature, message, key_bytes) rescue false
+          end
+        else
+          # Derive public key from private key
+          public_key = Ed25519.get_public_key(key_bytes)
+          verified = Ed25519.verify(signature, message, public_key)
         end
+
+        raise VerificationError.new("Signature verification failed") unless verified
       rescue e
         raise VerificationError.new("Signature verification failed", e)
       end

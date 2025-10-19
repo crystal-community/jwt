@@ -5,3 +5,7 @@ Lint/UselessAssign:
 Lint/DebugCalls:
   Excluded:
     - examples/*
+
+Metrics/CyclomaticComplexity:
+  Excluded:
+    - src/jwt/jwks.cr
