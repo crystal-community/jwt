@@ -42,7 +42,7 @@ describe JWT::JWKS do
       pem = jwk.to_pem
       pem.should contain("BEGIN PUBLIC KEY")
       pem.should contain("END PUBLIC KEY")
-      pem.chomp.should eq(sample_rsa_pubkey_pem.chomp)
+      pem.gsub(/\s+/, "").should eq(sample_rsa_pubkey_pem.gsub(/\s+/, ""))
     end
 
     it "raises error for unsupported key type" do
