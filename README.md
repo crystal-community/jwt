@@ -216,6 +216,22 @@ token = JWT.encode(payload, "SecretKey", JWT::Algorithm::HS256)
     * JWT::InvalidSubjectError
   * UnsupportedAlgorithmError
 
+## JWKS behind an HTTP proxy
+
+`JWT::JWKS` fetches OIDC metadata and keys with `HTTP::Client`, which ignores proxy environment variables. To route those fetches through `https_proxy` / `http_proxy` (or `HTTPS_PROXY` / `HTTP_PROXY`), add [connect-proxy](https://github.com/spider-gazelle/connect-proxy) to your dependencies and require the optional extension:
+
+```yaml
+dependencies:
+  connect-proxy:
+    github: spider-gazelle/connect-proxy
+```
+
+```crystal
+require "jwt/jwks_proxy"
+```
+
+With no proxy variable set, requests connect directly as before.
+
 ## Test
 
 ```
