@@ -60,6 +60,10 @@ module JWT
     # Default leeway for time-based claims (60 seconds)
     DEFAULT_LEEWAY = 60.seconds
 
+    # Timeouts for OIDC metadata and JWKS requests
+    HTTP_CONNECT_TIMEOUT = 3.seconds
+    HTTP_READ_TIMEOUT    = 5.seconds
+
     # Local keys for service-to-service JWT validation
     getter local_keys : Hash(String, String)?
     getter local_algorithm : Algorithm?
@@ -163,10 +167,7 @@ module JWT
         well_known_url = "#{issuer.rstrip("/")}/.well-known/openid-configuration"
         uri = URI.parse(well_known_url)
 
-        # Prepare HTTP client with timeouts
-        client = HTTP::Client.new(uri)
-        client.connect_timeout = 3.seconds
-        client.read_timeout = 5.seconds
+        client = http_client(uri)
 
         response = client.get(uri.request_target)
 
@@ -201,10 +202,7 @@ module JWT
           end
         end
 
-        # Prepare HTTP client with timeouts
-        client = HTTP::Client.new(uri)
-        client.connect_timeout = 3.seconds
-        client.read_timeout = 5.seconds
+        client = http_client(uri)
 
         # Add conditional GET headers if we have cached data
         headers = HTTP::Headers.new
@@ -244,6 +242,18 @@ module JWT
           raise DecodeError.new("Failed to fetch JWKS from #{jwks_uri}: #{response.status}")
         end
       end
+    end
+
+    # Builds the HTTP client used to fetch OIDC metadata and JWKS.
+    #
+    # `require "jwt/jwks_proxy"` redefines this to tunnel through the HTTP
+    # proxy named by `https_proxy` / `http_proxy` (needs the `connect-proxy`
+    # shard). Override it in a subclass to customise the client further.
+    def http_client(uri : URI) : HTTP::Client
+      client = HTTP::Client.new(uri)
+      client.connect_timeout = HTTP_CONNECT_TIMEOUT
+      client.read_timeout = HTTP_READ_TIMEOUT
+      client
     end
 
     # Find a JWK by kid in a JWKS

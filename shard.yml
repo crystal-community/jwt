@@ -1,5 +1,5 @@
 name: jwt
-version: 1.7.2
+version: 1.8.0
 
 authors:
   - Potapov Sergey <blake131313@gmail.com>
@@ -25,5 +25,10 @@ development_dependencies:
   webmock:
     github: manastech/webmock.cr
     branch: master
+
+  # optional, for `require "jwt/jwks_proxy"`
+  connect-proxy:
+    github: spider-gazelle/connect-proxy
+    version: ~> 2.0
 
 license: MIT
